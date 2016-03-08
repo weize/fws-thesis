@@ -1,0 +1,29 @@
+\chapter{Adaptive Query Facet Generation} \label{ch:anticipated}
+In this chapter, we propose adaptive query facet generation as our anticipated work.
+
+\section{Variety in Facet-Appropriateness}
+During our study, we find that queries are often of different ``facet-appropriateness''. Here, we use ``facet-appropriate'' (or ``high facet-appropriateness'') to describe that a query is easy to generate facets for, or it tends to have many useful facets or facet terms. We find that some queries are naturally easier than others to generate high-quality query facets for. For example, queries about products, such as ``toilet'' and ``volvo'', tend to have more high-quality candidate lists extracted from search results, and are therefore easier than other complex queries, such as ``self motivation''.
+Some queries tend to have more useful query facets than others.
+Table~\ref{fig:nfacets} shows the distribution of the number of facets (from annotators) each query has, for the 196 queries we used in Section~\ref{sec:ee-exp}. We can see that the number of facets varies widely for different queries. The most facet-appropriate query has 27 facets, while the least facet-appropriate query has only one.
+Similarly, some facets tend to have more important facet terms than others.
+For example, the facet for flight types only contains two facet terms (``international'' and ``domestic''), while the facet for different airlines contains many more facet terms (e.g, AA, Delta, JetBlue, United).
+\begin{figure}[ht!]
+\centering
+\epsfig{file=figure/number-facet.eps,scale=0.6}
+\caption{Distribution on number of facets each query have}
+\label{fig:nfacets}
+\end{figure}
+
+
+However, existing query facet generation models (described in Chapter~\ref{ch:facet}) do not capture the variety in facet-appropriateness of different queries. The topic modeling approaches (pLSA and LDA) return a fixed number of facets and facet terms for all queries. Similarly, QF-I/QF-J and QDMiner return the top K requested facets for all queries.
+All these static approaches suffer from the problems that: 1) when the query is of high facet-appropriateness, they may miss many high-quality facets; 2) more importantly, when the query is of low facet-appropriateness, they may return many low-quality facets, which are extremely bad for user experience. 
+
+\section{Adaptive Models}
+In order to address the problems of facet-appropriateness variety, we propose adaptive query facet generation to suggest and rank the right number of query facets and facet terms for each queries, under a limited display space allocation. This can improve query facet generation and make it more practical. More specifically, when encountering complex and difficult queries (e.g., ``self motivation''), adaptive query facet generation will only suggest query facets of high confidence (or will even not suggest any query facets). This will avoid noisy results which may largely hurt user experience. Similarly, for other queries of low facet-appropriateness, adaptive query facet generation could avoid suggesting low-quality facets; for queries of high facet-appropriateness, it will include more high-quality facets in the results. In addition, the limited display space constraint in adaptive query facet generation also makes the setting more realistic for mobile environment in particular.
+
+We will investigate different classification or ranking models for deciding whether to suggest a particular generated facet and facet term. We will need to design facet and facet term features to characterize the quality of the facet (as a whole) and facet term (within the its facet). These features can be based on item and item pair features designed for query facet generation (see Section~\ref{sec:facet-features}). We can also design new features based on the probabilities (of an item being a facet term and two facet terms being in the same facet) learned in QF-I/QF-J. We may also design other new features based on external resources, such as query logs and human created taxonomies (e.g., Freebase). These supervised models are promising, because they could take advantage of available human labels to learn whether or not to suggest a particular generated query facet (and a particular facet term).
+
+\section{Evaluation}
+We will also extend our intrinsic and extrinsic evaluation for adaptive query facet generation. A problem with the existing intrinsic and extrinsic evaluation is that they may not have enough penalty for low-quality facets and facet terms.
+For intrinsic evaluation, in Section~\ref{sec:ee-cmp-facet-extrinsic}, we find that QF-I tends to have large sized facets, when tuned on wPRF with equal weight for term precision and recall. This suggests that too much weight is assigned for recall. Therefore, we plan to investigate a more balanced weight for wP, wR and wFP in wPRF, to avoid generating too many low-quality facets or facet terms. For extrinsic evaluation, our user model for estimating user feedback time assumes that users take the same amount of time for scanning different query facets. However, in reality, users may take much more time to examine facets and select facet terms for low-quality facets. Therefore, we plan to incorporate the factor of facet quality into the user model for estimating user feedback time.
+ 

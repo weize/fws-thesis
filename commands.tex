@@ -1,0 +1,72 @@
+\usepackage{xspace}
+
+\DeclareMathOperator*{\argmax}{argmax}
+
+\newcommand{\mylistbegin}{
+  \begin{list}{$\bullet$}
+   {
+     \setlength{\itemsep}{-2pt}
+     %\setlength{\parsep}{0pt}
+     %\setlength{\topsep}{0pt}
+     %\setlength{\partopsep}{0pt}
+     \setlength{\leftmargin}{1em}
+     \setlength{\labelwidth}{1em}
+     \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\mylistend}{
+   \end{list}  }
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\xeg}{\textit{E.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\etc}{\textit{etc.}}
+\newcommand{\etal}{\textit{et al.}}
+\newcommand{\wrt}{\textit{w.r.t.}}
+\newcommand{\header}[1]{{\flushleft \textbf{#1}}}
+\newcommand{\sheader}[1]{{\flushleft \textit{#1}}}
+
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+
+
+% data
+\newcommand{\DQF}{QF13\xspace}
+\newcommand{\DFWS}{FWS14\xspace}
+
+% models
+\newcommand{\QF}{QF\xspace}
+\newcommand{\QFI}{QFI\xspace}
+\newcommand{\QFJ}{QFJ\xspace}
+\newcommand{\QDM}{QDM\xspace}
+\newcommand{\PLSA}{pLSA\xspace}
+\newcommand{\LDA}{LDA\xspace}
+
+\newcommand{\MLE}{MLE\xspace}
+\newcommand{\EUM}{EUM\xspace}
+\newcommand{\EUMab}[2]{$EU\!M_{{#1},{#2}}$}
+
+%measures
+\newcommand{\TP}{$T\!P$\xspace}
+\newcommand{\TR}{$T\!R$\xspace}
+\newcommand{\TF}{$T\!F$\xspace}
+\newcommand{\PP}{$P\!P$\xspace}
+\newcommand{\PR}{$P\!R$\xspace}
+\newcommand{\PF}{$P\!F$\xspace}
+\newcommand{\PRFab}[2]{$P\!R\!F_{\alpha={#1},\beta={#2}}$}
+\newcommand{\PRF}{$P\!R\!F_{\alpha,\beta}$\xspace}
+\newcommand{\PRFe}{P\!R\!F_{\alpha,\beta}} % for equation
+
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\bw}{\boldsymbol{w}}
+\newcommand{\bW}{\boldsymbol{W}}
+\newcommand{\bfn}{\boldsymbol{f}}
+\newcommand{\blambda}{\boldsymbol{\lambda}}
+\newcommand{\btheta}{\boldsymbol{\theta}}
+
+\newcommand{\concept}[1]{``\textit{#1}''}
+\newcommand{\todo}[1]{{\color{blue}{\noindent$/\!/$\textbf{TODO}: #1}}}
+\newcommand{\cmt}[1]{{\noindent\color{blue}{$/\!\ast$ #1 $\ast\!/$}}}
+\newcommand{\hcmt}[1]{{\flushleft \color{blue}{[\textbf{#1}]}\\}}
+\renewcommand{\cite}[1]{\citep{#1}}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\renewcommand*\Call[2]{\textproc{#1}(#2)}

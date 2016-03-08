@@ -1,0 +1,101 @@
+\documentclass[doublespace]{umassthesis}
+\usepackage{epsfig}
+
+\usepackage{graphicx}
+\graphicspath{ {figure/} } 
+\usepackage{caption}
+\usepackage{subcaption}
+%\usepackage{subcaption}
+%\usepackage{subfigure}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{hhline}
+\usepackage{multirow}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+%\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[authoryear,round]{natbib}
+%\bibliographystyle{umthesis}
+\bibliographystyle{plainnat}
+%\setcitestyle{authoryear,open={(},close={)}}
+
+\input{commands}
+\begin{document}
+%\title{Extending Faceted Search to an Open-Domain Web Setting}
+\title{Extending Faceted Search to the Open-Domain Web}
+%\title{Open-Domain Faceted Web Search}
+\author{Weize Kong}
+\date{2016}
+\copyrightyear{2016}
+\bachelors{B.Eng.}{Beihang University}
+\masters{M.Sc.}{University of Massachusetts Amherst}
+\committeechair{James Allan}
+\firstreader{W. Bruce Croft}
+\secondreader{David Jensen}
+\thirdreader{Michael Lavine}
+\departmentchair[Chair of the Faculty]{James Allan}
+\departmentname{College of Information and Computer Sciences}
+
+
+\frontmatter
+\maketitle
+\copyrightpage
+\signaturepage 
+
+\begin{dedication}              % Dedication page
+  \begin{center}
+  \end{center}
+\end{dedication}
+
+\input{ch-ack}
+
+\begin{abstract}
+Faceted search enables users to navigate a multi-dimensional information space by combining keyword search with drill-down options in each facets. It has been used successfully for many vertical applications, including e-commerce and digital libraries. However, this idea is not well explored for general web search in an open-domain setting, even though it holds great potential for assisting multi-faceted queries and exploratory search.
+
+The goal of this work is to explore this potential by extending faceted search into the open-domain web setting, which we call Faceted Web Search. We address three fundamental issues in Faceted Web Search. First, to tackle the large and heterogeneous nature of the web, we propose a query-dependent approach for facet generation, which extracts facets for queries from their web search results. We further improve our facet generation model under a more practical scenario, where users care more about precision of presented facets than recall. Second, to incorporate user feedback on facets into document ranking, we investigate both Boolean filtering and soft ranking models. Third, we propose both intrinsic evaluation, which evaluates facet generation on its own, and extrinsic evaluation, which evaluates an entire Faceted Web Search system by its utility in assisting search clarification. We also design a method for building reusable test collections for such evaluations.
+
+
+
+%Faceted search enables users to navigate a multi-faceted information space by combining keyword search with drill-down options in each facets. For example, when searching ``computer monitor'' in an e-commerce site, users can select brands and monitor types from the the provided facets \{``Samsung'', ``Dell'', ``Acer'', ...\} and \{``LET-Lit'', ``LCD'', ``OLED'', ...\}. This technique has been used successfully for many vertical applications, including e-commerce and digital libraries. However, it is not well explored for general web search in an open-domain setting, even though it holds great potential for assisting multi-faceted queries and exploratory search.
+
+%The goal of this work is to explore this potential by extending faceted search into the open-domain web, which we call Faceted Web Search. We address three fundamental issues in Faceted Web Search. First, previous work in faceted search typically generates facets for the entire corpus, and then recommend facets for given queries. 
+%However, this approach becomes challenging when extended to Faceted Web Search due to the large and heterogeneous nature of the web. To solve the problem, we propose a query-dependent approach for facet generation, which extracts facets for queries from their web search results. 
+
+%Second, to incorporate user feedback on facets into document re-ranking, we investigate both Boolean filtering and soft ranking models. 
+
+%Third, to evaluate Faceted Web Search, we propose intrinsic evaluation, which evaluates facet generation on its own, and extrinsic evaluation, which evaluates the whole Faceted Web Search by its utility in assisting search clarification. We design a way of building reusable test collections for such evaluations. 
+\end{abstract}
+
+
+
+\tableofcontents                % Table of contents
+\listoftables                   % List of Tables
+\listoffigures                  % List of Figures
+
+\mainmatter   %% <-- This line is mandatory
+\input{ch-introduction}
+\input{ch-relatedwork}
+\input{ch-facet}
+\input{ch-intrinsiceval}
+\input{ch-precision}
+\input{ch-feedback}
+\input{ch-extrinsiceval}
+%\input{ch-anticipated}
+%\input{ch-plan}
+\input{ch-conclusion}
+
+
+
+\backmatter  %% <--- mandatory
+
+
+%%
+%% A bibliography is required.
+\interlinepenalty=10000  % prevent split bibliography entries
+\bibliography{thesis}
+\end{document}
