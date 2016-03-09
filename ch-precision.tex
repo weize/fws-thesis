@@ -2,7 +2,7 @@
 \label{ch:precision}
 \section{Introduction}
 \label{sec:precision-intro}
-While the query facet extraction approach, as we presented in Chapter~\ref{ch:facet}, provides a promising direction for solving the open-domain facet generation problem, it neglects the precision-oriented perspective of the task, which we believe is important in practical use. As in many precision-oriented information retrieval tasks, we believe users are likely to care more about ``facet precision'' than ``facet recall''. That is, users may care more about the correctness of presented facets (\eg, are the terms in the airline facet indeed about airlines, and are the airline terms grouped together in a same facet) than the completeness of facets (\eg, are all possible facets for that query presented, and are all possible airline terms included the results?). In other words, mistakes of presenting wrong terms in a facet, or grouping terms incorrectly are more severe than omitting some facets or terms in facets. The work presented in Chapter~\ref{ch:facet} and Chapter~\ref{ch:intrinsiceval} do not consider 
+While the query facet extraction approach presented in Chapter~\ref{ch:facet}, provides a promising direction for solving the open-domain facet generation problem, it neglects the precision-oriented perspective of the task, which we believe is important in practical use. As in many precision-oriented information retrieval tasks, we believe users are likely to care more about ``facet precision'' than ``facet recall''. That is, users may care more about the correctness of presented facets (\eg, are the terms in the airline facet indeed about airlines, and are the airline terms grouped together in a same facet) than the completeness of facets (\eg, are all possible facets for that query presented, and are all possible airline terms included the results?). In other words, mistakes of presenting wrong terms in a facet, or grouping terms incorrectly are more severe than omitting some facets or terms in facets. The work presented in Chapter~\ref{ch:facet} and Chapter~\ref{ch:intrinsiceval} does not consider 
 this precision-oriented factor when designing query facet extraction models or evaluating 
 extraction results. Therefore, it is unclear if these models can adapt to such scenarios.
 
@@ -13,7 +13,7 @@ approximation is effective.
 
 Second, we improve extraction performance by an selective method that shows facets for good performing queries and avoid poor performing ones. We find that extraction performance varies for different queries -- some queries are naturally more difficult than others for extracting query facets. In the precision-oriented scenario, it may be more desirable to avoid showing facets for those poor performing queries and leave the users with a clean keyword-search interface. A key problem, however, is how to predict the extraction performance. To solve this problem, we propose a simple and effective score based on the expectation of the performance measure. We find the score has a strong correlation with the performance measure, and when used in the selective method, it can significantly improve the average performance with fair coverage over the whole query set.
 
-The rest of this chapter is organized as follows. In Section~\ref{sec:precision-related}, we briefly review related work. In Section~\ref{sec:precision-measure}, we revisit \PRF measures used in intrinsic evaluation (Chapter~\ref{ch:intrinsiceval}) in order to help develop our empirical utility maximization approach in Section~\ref{sec:precision-eum}, and our selective method for query faceting in Section~\ref{sec:precision-selective}. We carry out experiments in Section~\ref{sec:precision-experiment}, followed by conclusions in Section~\ref{sec:precision-conclusion}
+The rest of this chapter is organized as follows. In Section~\ref{sec:precision-related}, we briefly review related work. In Section~\ref{sec:precision-measure}, we revisit the \PRF measures used in intrinsic evaluation (Chapter~\ref{ch:intrinsiceval}) in order to help develop our empirical utility maximization approach in Section~\ref{sec:precision-eum}, and our selective method for query faceting in Section~\ref{sec:precision-selective}. We carry out experiments in Section~\ref{sec:precision-experiment}.
 \section{Related Work}
 \label{sec:precision-related}
 \subsection{Directly Optimizing Performance Measures}
@@ -30,9 +30,9 @@ automatic query expansion for ``easy'' queries only. Our selective method for qu
 
 \section{\PRF Measure}
 \label{sec:precision-measure}
-Our empirical utility maximization approach and selective method for query faceting are based on \PRF measure that was introduced in Chapter~\ref{ch:extrinsiceval}. In this section, we revisit this measures, and formulate it in a way that will make the development these methods easier. This measure will also be used for evaluating query facet extraction under precision-oriented scenarios in Section~\ref{sec:precision-experiment}.
+Our empirical utility maximization approach and selective method for query faceting are based on the \PRF measure that was introduced in Chapter~\ref{ch:intrinsiceval}. In this section, we revisit this measure, and formulate it in a way that will make the development for the utility maximization approach and the selective method easier. This measure will also be used for evaluating query facet extraction under precision-oriented scenarios in Section~\ref{sec:precision-experiment}.
 
-Recall \PRF measure combines term precision, term recall, and term clustering perform. We will now re-formulate these factors in the following sections. As before, to help describe the measure, we will use superscript ``$*$'' to distinguish ground truth from system output. For example, $y_i^*$ is a ground truth term label, while $y_i$ is a term label predicted by the system. $T_\mathcal{F}^*$ is a set consisted by all the terms in the ground truth facets, while $T_\mathcal{F}$ is consisted by all terms in the system extracted facets.
+Recall that the \PRF measure combines term precision, term recall, and term clustering perform. We will now re-formulate these factors in the following sections. As before, to help describe the measure, we will use superscript ``$*$'' to distinguish ground truth from system output. For example, $y_i^*$ is a ground truth term label, while $y_i$ is a term label predicted by the system. $T_\mathcal{F}^*$ is a set consisted by all the terms in the ground truth facets, while $T_\mathcal{F}$ is consisted by all terms in the system extracted facets.
 
 \subsection{Term Precision and Recall}
 In \PRF, the classification performance is measured by term precision (\ie, precision of the selected candidate terms being facet terms) and term recall (\ie, recall of facet terms).  They can be formulated as below, where subscript ``$c$'', ``$s$'', ``$g$'' stands for ``correct'', ``system'', ``ground truth'' respectively.
@@ -87,7 +87,7 @@ It is easy to see $P\!R\!F_{\alpha,\beta}$ can be also rewritten as a function o
 \section{Empirical Utility Maximization}
 \label{sec:precision-eum}
 \todo{present all derived equations}
-In this section, we will describe our empirical utility maximization (\EUM) approach that directly optimize \PRF for training \QF model (described in Section~\ref{sec:facet-gm}). 
+In this section, we describe our empirical utility maximization (\EUM) approach that directly optimize \PRF for training \QF model (described in Section~\ref{sec:facet-gm}). 
 
 The \QF model can be viewed as a model which takes in candidate terms and term pairs and predicts their labels, $(Y, Z)=h(T_\mathcal{L},P_\mathcal{L};\lambda,\mu)$. The parameters $\lambda,\mu$ are trained by maximizing the conditional likelihood of the labels, $l(\lambda,\mu)$ as defined in Equation~\ref{eq:ll}. One problem with the maximum likelihood estimation is the likelihood target can be loosely related to performance measure $P\!R\!F_{\alpha,\beta}$, especially in the precision-oriented scenario, where term recall are less important than other factors (, as we will show in Section~\ref{sec:precision-experiment}).
 
@@ -151,7 +151,7 @@ In this section we describe selective query faceting -- our selective method for
 \centering
 \caption{$P\!R\!F_{\alpha=1,\beta=1}$ performance distribution for QFI trained based on likelihood.}
 \label{fig:prf-hist}
-\includegraphics[width=0.7\columnwidth]{qf13-qp-prf}
+\includegraphics[width=0.8\columnwidth]{figure/qf13-qp-prf.eps}
 \end{figure}
 
 \subsection{Selective Query Faceting}
@@ -224,7 +224,7 @@ After choosing PRF score as the performance predictor, selective query faceting 
 
 \section{Experiments}
 \label{sec:precision-experiment}
-Our experiments aim to investigate mainly three research questions. Fist, we want to test do existing query facet extraction methods adapt to precision-oriented scenarios. Second, we want to test if our empirical utility maximization approach is effective in precision-oriented scenarios. Last, we want to test can the PRF score effectively predict extraction performance, and support selective query faceting. We will first describe our experimental settings, then present experiment results for each of the research questions.
+Our experiments aim to investigate mainly three research questions. First, we want to test whether existing query facet extraction methods adapt to precision-oriented scenarios. Second, we want to test if our empirical utility maximization approach is effective in precision-oriented scenarios. Last, we want to test whether the PRF score can effectively predict extraction performance, and support selective query faceting. We will first describe our experimental settings, then present experiment results for each of the research questions.
 
 \subsection{Experimental Settings}
 \subsubsection{Data}
@@ -259,7 +259,7 @@ We study two ways of training the graphical model (see Section~\ref{sec:facet-gm
 \item \MLE (Section~\ref{sec:facet-train}): Uses conditional likelihood as the optimization objective and performs maximum likelihood estimating for training.
 \item \EUM (Section~\ref{sec:precision-eum}): since likelihood can loosely related to the performance measure, we propose to use empirical utility maximization to directly optimize the \PRF measure during training. We approximate \PRF by its expectation in order to enable numerical optimization. With different $\alpha,\beta$, we can use different versions of \PRF as the optimization objective. We test three runs by setting $(\alpha\!=\!1,\beta\!=\!1)$, $(\alpha\!=\!2,\beta\!=\!1)$, $(\alpha\!=\!1,\beta\!=\!\frac{1}{2})$. 
 %\cmt{explain why not others}. 
-We denote the different runs by add $\alpha,\beta$ subscript in ``\EUM'' (\eg, \EUMab{2}{1} stands for EMU training using \PRFab{2}{1} as the optimization objective).
+We denote the different runs by add $\alpha,\beta$ subscript in ``\EUM'' (\eg, \EUMab{2}{1} stands for EUM training using \PRFab{2}{1} as the optimization objective).
 \end{itemize}
 \subsection{Existing Methods Under Precision-Oriented Scenarios}
 \label{sec:precision-existing}
@@ -270,11 +270,11 @@ We first investigate if the five existing models can adapt to precision-oriented
 \caption{$P\!R\!F_{\alpha,\beta}$ performance with different $\alpha$ (left, fixed $\beta\!=\!1$) and different $\beta$ (fixed $\alpha\!=\!1$, right) settings for existing methods on \DQF.}
 \label{fig:existing}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-prfa-5models}
+\includegraphics[width=\columnwidth]{figure/qf13-prfa-5models.eps}
 \caption{\DQF, $P\!R\!F_{\alpha,\beta=1}$}
 \end{subfigure}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-prfaf-5models}
+\includegraphics[width=\columnwidth]{figure/qf13-prfaf-5models.eps}
 \caption{\DQF, $P\!R\!F_{\alpha=1,\beta}$}
 \end{subfigure}
 %\begin{subfigure}[b]{0.49\columnwidth}
@@ -325,19 +325,19 @@ Differently, for \QFI, we find \EUM can improve over \MLE largely under the prec
 \caption{$P\!R\!F_{\alpha=1,\beta}$ performance for \MLE and \EUM training using \QFI (left) and \QFJ (right) on \DQF. The three \EUM runs use \PRF under different $\alpha,\beta$ settings (specified in the legend) as the training target.}
 \label{fig:ll-prf}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-qfi-prfaf-ll-prf}
+\includegraphics[width=\columnwidth]{figure/qf13-qfi-prfaf-ll-prf.eps}
 \caption{\QFI}
 \end{subfigure}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-qfj-prfaf-ll-prf}
+\includegraphics[width=\columnwidth]{figure/qf13-qfj-prfaf-ll-prf.eps}
 \caption{\QFJ}
 \end{subfigure}
 %\begin{subfigure}[b]{0.49\columnwidth}
-%\includegraphics[width=\columnwidth]{fws14-qfi-prfaf-ll-prf}
+%\includegraphics[width=\columnwidth]{figure/fws14-qfi-prfaf-ll-prf.eps}
 %\caption{\DFWS, \QFI}
 %\end{subfigure}
 %\begin{subfigure}[b]{0.49\columnwidth}
-%\includegraphics[width=\columnwidth]{fws14-qfj-prfaf-ll-prf}
+%\includegraphics[width=\columnwidth]{figure/fws14-qfj-prfaf-ll-prf.eps}
 %\caption{\DFWS, \QFJ}
 %\end{subfigure}
 \end{figure}
@@ -369,11 +369,11 @@ Last, the improvement of \QFJ in precision oriented scenarios raises a question 
 \caption{\PRF performance with different $\alpha$, $\beta$ settings for \QFI and \QFJ under \MLE and \EUM training on \DQF. \EUMab{1}{0.5} run result is reported for \EUM.}
 \label{fig:qfi-qfj}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-prfa-qfi-qfj}
+\includegraphics[width=\columnwidth]{figure/qf13-prfa-qfi-qfj.eps}
 \caption{$P\!R\!F_{\alpha,\beta=1}$}
 \end{subfigure}
 \begin{subfigure}[b]{0.45\columnwidth}
-\includegraphics[width=\columnwidth]{qf13-prfaf-qfi-qfj}
+\includegraphics[width=\columnwidth]{figure/qf13-prfaf-qfi-qfj.eps}
 \caption{$P\!R\!F_{\alpha=1,\beta}$}
 \end{subfigure}
 %\begin{subfigure}[b]{0.49\columnwidth}
@@ -420,7 +420,7 @@ To evaluate selective query faceting, we plot the average \PRF performance for q
 \centering
 \caption{Average \PRF performance for selected queries. The gray area indicates standard error with 95\% confidence intervals. Run: \PRFab{1}{1} as the measure with \MLE trained \QFI as the extraction model}
 \label{fig:selective}
-\includegraphics[width=0.8\columnwidth]{qf13-qp-prf-ll}
+\includegraphics[width=0.8\columnwidth]{figure/qf13-qp-prf-ll.eps}
 %\begin{subfigure}[b]{1\columnwidth}
 %\includegraphics[width=0.8\columnwidth]{qf13-qp-prf-ll}
 %\end{subfigure}
@@ -434,6 +434,8 @@ From Figure~\ref{fig:selective}, we can see as we select less and less queries f
 
 %The observation for Figure~\ref{fig:selective}(b) is similar but less evident. We also find statistical significant improvement when applying selective faceting. For example, when selecting 20 queries, we obtain 0.6986 \PRFab{1}{0.1}, comparing to 0.5607 when the selective method are not performed (p-value = 0.0011).
 
-\section{Conclusions}
+\section{Summary}
 \label{sec:precision-conclusion}
-In this chapter, we study and improve query facet extraction under precision-oriented scenarios, which could help this technique to be used practically. We find the performance expectation can be used as an approximation to directly optimize the performance measure, which significantly improves existing models under precision-oriented scenarios. We propose PRF score based on the expectation of \PRF to predict extraction performance. We show this score has fairly good prediction performance which enables selective query faceting that selects good performing queries to show facets, and improve the average extraction performance.
+In this chapter, we studied and improved query facet extraction under precision-oriented scenarios, which could help this technique to be used practically. We find the performance expectation can be used as an approximation to directly optimize the performance measure, which significantly improves existing models under precision-oriented scenarios. We proposed a PRF score based on the expectation of \PRF to predict extraction performance. We show this score has fairly good prediction performance which enables selective query faceting that selects good performing queries to show facets, and improves the average extraction performance.
+
+In next chapter, we will consider how to re-organize search results based on users' selection on the extracted query facets.

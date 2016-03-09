@@ -8,7 +8,7 @@ The ``gold standard'' query facets are constructed by human annotators and used 
 
 In intrinsic evaluation, the quality of generated query facets can be measured from two aspects. (1) How well does the model generate/find correct facet terms. This can be measured by standard classification measures, such as precision and recall. (2) How well does the model groups facet terms correctly. This can be measured by standard clustering measures, such as F-measures for clustering, Purity and Normalized Mutual Information.
 
-However, a single performance measure that combines the different aspects can be desirable in many cases. First, such a single measure provides an overall measurement for effectiveness, which is often necessary for comparing different models. Second, such a single measure can be used for tuning or training models. For example, in Chapter\todo{add ref}, we propose a method that directly using a performance measure as the training object. 
+However, a single performance measure that combines the different aspects can be desirable in many cases. First, such a single measure provides an overall measurement for effectiveness, which is often necessary for comparing different models. Second, such a single measure can be used for tuning or training models. For example, in Chapter~\ref{ch:precision}, we propose a method that directly using a performance measure as the training object. 
 
 To combine the two evaluation aspects, we design a new measure called $PRF_{\alpha,\beta}$~\cite{kong2013extracting}. $PRF_{\alpha,\beta}$ combines $TP$, $TR$ and $PF$ using weighted harmonic mean, where $TP$, $TR$ and $PF$ are precision and recall for facet terms, and the F1 measure for facet term clustering. Parameters $\alpha$ and $\beta$ can be used to adjust the emphasis of the three factors for different applications.
 
@@ -323,5 +323,8 @@ QF-J & \textbf{0.336} & \textbf{0.193}\\\hline
 \end{tabular}
 \end{table}
 
-\section{Conclusions} \label{sec:ie-conclusions}
-In this chapter, we designed intrinsic evaluation to directly evaluate generated query facets by comparing them with human created ones. We designed an new evaluation metric that combines recall and precision of facet terms with grouping quality. Experimental results show that our supervised method (QF-I/QF-J), proposed in Chapter~\ref{ch:facet}, can take advantage of a richer set of features and outperforms other unsupervised methods.
+\section{Summary} \label{sec:ie-conclusions}
+In this chapter, we designed intrinsic evaluation to directly evaluate generated query facets by comparing them with human created ones. We designed an new evaluation metric that combines recall and precision of facet terms with grouping quality. Experimental results show that our supervised method (QF-I/QF-J), described in Chapter~\ref{ch:facet}, can take advantage of a richer set of features and outperforms other unsupervised methods.
+
+One thing we note is that term precision tends to be low while recall is high in these results. In the next chapter, we explore methods for boosting precision on the assumption that it is often very important.
+
