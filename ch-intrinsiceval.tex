@@ -152,7 +152,7 @@ We assign weight for facet term pair $w(t_1, t_2)$ using their sum, $w(t_1) + w(
 \subsection{Experiment settings}
 \todo{separate to multiple paragraphs}
 We compare effectiveness of the five models, QDM, pLSA, LDA and QF-I, QF-J (described in Chapter~\ref{ch:facet}), on the 100-query data set.
-All the models take the same candidate lists extracted/cleaned (see Section~\ref{sec:extractCandidateLists}) as input.
+All the models take the same candidate lists extracted/cleaned (see Section~\ref{sec:facet-candidate}) as input.
 We perform 10-fold cross validation for training/testing and parameter tuning in all experiments and for all models (if applicable).
 When training the graphical model, we standardize features by removing the mean and scaling to unit variance.
 We set both of the two regularizers $\sigma$ and $\gamma$ to be 1.

@@ -55,20 +55,44 @@ When it is clear from context, we will simply use ``facet'' for ``query facet'',
 \subsection{Query Facet Extraction}
 Based on the definitions above, query facet extraction is to extract query facets for a given query from certain resources. While a variety of different resources can be used for query facet extraction, such as a query log, anchor text, taxonomy and social folksonomy, In this work, we only focus on extracting query facets from the top ranked web search results, and and leave others as future work.
 
-\section{General Framework}
+\section{Solution Framework}
 \label{sec:facet-framework}
-In this section, we describe the general framework we use for extracting query facet from web search results. It generally works as follows: (1) Given a query, retrieve the top search results. (2) Extract candidate facets from the search results based on pre-defined extraction patterns. (3) Refine the candidates to final query facets by re-clustering facets or facet terms in the candidate set. Step 2 and 3 are further described below.
+% intuition and assumptions
+The idea for solving query facet extraction is to leverage coordinate terms found in the web search results to build high-quality query facets. These coordinate terms can be found by looking into the list structures in webpages (\eg, order lists, drop-down lists) or analyzing the linguistic list structures in the textual content (\eg, \concept{airlines such as \underline{AA}, \underline{Delta}, \underline{JetBlue}}).
+Previous work in semantic class extraction~\cite{hearst1992automatic,pasca2004acquisition,kozareva2008semantic,shi2010corpus} has studied patterns for extraction these structures. 
 
-\subsection{Candidate Extraction} 
-\label{sec:extractCandidateLists}
-Following \citet{dou2011finding}, we use pattern-based semantic class extraction approach~\cite{shi2010corpus} to extract lists of coordinate terms from search results as candidates for query facets.
-In pattern-based semantic class extraction, patterns are applied on the corpus to discover specific relationships between terms.
-For example, the pattern ``\textit{NP} such as \textit{NP}, \textit{NP}, ..., and \textit{NP}'' can be used to extract coordinate terms and their hypernyms from text.
-Besides lexical patterns, HTML patterns are often used on HTML documents to extract coordinate terms from some HTML structures, like <UL>, <SELECT> and <TABLE>.
+This idea is based on the following two assumptions:
+\begin{enumerate}[label={(\arabic*)}]
+ \item The list structures are consisted by coordinate terms, or terms that share peering relationships. According to webpage design conversions, webpage editors often list peering information objects in the HTML list structures. Similarly, the linguistic list structures are often used to list peering information objects in writing.
+ \item The list structures presents relevant and important aspects of the query. Assuming the search results are relevant to the query, those list structures extracted from the search result should also be related to the query.  And, if they occurred frequently, it may also be important to that query.
+\end{enumerate}
+
+Based on the idea, we develop the following general solution framework for query facet extraction, as also illustrated in Figure~\ref{fig:facet-framework}:
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.85\columnwidth]{drawing/facet-solution.eps}
+\caption{Query facet extraction framework}
+\label{fig:facet-framework}
+\end{figure}
+\begin{enumerate}[label={(\arabic*)}]
+ \item \textbf{Retrieval}: in the first step, given a query, we retrieve the top search results.
+ \item \textbf{Candidate extraction}: in the second step, we extract list structures as facet candidates from the search results based on pre-defined extraction patterns.
+ \item \textbf{Facet Refining}: the facet candidates extracted are often very noisy, and cannot be directly used as query facets. In the last step, we refine the candidates to final query facets by re-clustering facets or terms in the candidate set.
+\end{enumerate}
+
+We will describe candidate extraction and facet refining in more detail in the next two sections. 
+
+\section{Candidate Extraction}
+\label{sec:facet-candidate}
+Following \citet{dou2011finding}, we use pattern-based semantic class extraction approach~\cite{shi2010corpus} to extract lists of coordinate terms from search results as facet candidates. In pattern-based semantic class extraction, instances of a semantic class (\eg, instance \concept{AA}, \concept{Delta}, \concept{JetBlue} for class \concept{airlines}) are extracted from textual or webpage corpus based on lexical patterns~\cite{hearst1992automatic,pasca2004acquisition}, HTML patterns~\cite{shinzato2007simple}, or both~\cite{shi2008pattern,zhang2009employing}. For example, the pattern ``\textit{NP} such as \textit{NP}, \textit{NP}, ..., and \textit{NP}'', where \concept{NP} stands for a noun phrase, can be used to extract coordinate terms (as instances) and their hypernyms (as the semantic class) from text. Besides lexical patterns, HTML patterns are often used on HTML documents to extract coordinate terms from some HTML structures, like unordered lists (\ie, <UL>), drop-down lists (\ie, <SELECT>) and 
+tables (\ie, <TABLE>). The coordinate terms extracted from each patterns form a candidate for query facets, which we call \textbf{candidate list}.
+
+We apply both of the two types of patterns on the search results to extract candidate lists. These extraction patterns are summarized in Table~\ref{tab:facet-patterns}. We describe them in details in the following two sections.
+
 \begin{table}[ht!]
 \centering
-\caption{Semantic class extraction patterns}
-\label{tab:patterns}
+\caption{Candidate list extraction patterns. All matched \textit{items} in each pattern are extracted as a candidate list.}
+\label{tab:facet-patterns}
 \begin{tabular}{|c|l|} \hline
 Type& Pattern\\ \hline
 Lexical & \textit{item}, \{,\textit{item}$\}^*$, (and|or) \{other\} \textit{item} \\  \hline
@@ -80,18 +104,65 @@ Lexical & \textit{item}, \{,\textit{item}$\}^*$, (and|or) \{other\} \textit{item
 \end{tabular}
 \end{table}
 
-\todo{Why these patterns}
-We use both of the two types of patterns, summarized in Table~\ref{tab:patterns}.
-In the table, all \textit{items} in each pattern are extracted as a candidate list.
-For example, from the text sentence ``\textit{... Mars rovers such as Curiosity, Opportunity and Spirit}'', 
-according to the lexical pattern, we will extract a candidate list \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}.
-For the lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence.
-We use the PCFG parser~\cite{klein2003accurate}
-implemented in Stanford CoreNLP\footnote{http://nlp.stanford.edu/software/corenlp.shtml} for parsing documents.
+\subsection{Lexical Patterns}
+We use the following lexical pattern:
+\begin{center}
+\textit{item}, \{,\textit{item}$\}^*$, (and|or) \{other\} \textit{item} 
+\end{center}
+We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the following sentence,
+\begin{center}
+\concept{... Mars rovers such as Curiosity, Opportunity and Spirit.}
+\end{center}
 
-HTML lists \textit{UL} and \textit{OL} can be nested, as shown in Figure~\ref{fig:nestedlist}. For nested HTML lists, we extract all the sibling items. For the example in Figure~\ref{fig:nestedlist}, we will extract two lists,
+For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
+
+\subsection{HTML Patterns}
+We also extract candidate lists based on several HTML patterns that target list structures in HTML webpages, including drop-down lists, ordered list, unordered list and tables. Table~\ref{tab:facet-html} shows some HTML code examples for these list structures.
+\begin{table}[ht!]
+\centering
+\caption{HTML code examples for drop-down lists (SELECT), ordered lists (OL), unordered lists (UL) and tables (TABLE).} 
+\label{tab:facet-html}
+\begin{tabular}{|l|} \hline
+\textbf{SELECT}: \\
+\texttt{<select>}\\
+\texttt{<option value=``1''>first class</option>}\\
+\texttt{<option value=``2''>business class</option>}\\
+\texttt{<option value=``3''>economy class</option>}\\
+\texttt{</select>}\\\hline
+\textbf{OL}: \\
+\texttt{<ol>}\\
+\texttt{<li>checked baggage allowance</li>}\\
+\texttt{<li>carry on baggage allowance</li>}\\
+\texttt{<li>excess baggage allowance</li>}\\
+\texttt{</ol>}\\\hline
+\textbf{UL}: \\
+\texttt{<ul>} \\
+\texttt{<li><a href=``courtesy\_bags.aspx''>Courtesy bags</a></li>}\\
+\texttt{<li><a href=``dangerous.aspx''>Dangerous goods</a></li>}\\
+\texttt{<li><a href="devices.aspx">Electronic devices</a></li>}\\
+\texttt{<li><a href="sports.aspx">Sports equipment</a></li>}\\
+\texttt{</ul>}\\\hline
+\textbf{TABLE}: \\
+\texttt{<table>}\\
+\texttt{\small<tr><td></td><td>economy</td><td>business</td>first</li>}\\
+\texttt{\small<tr>domestic<td>2 bags</td><td>3 bags</td><td>4 bags</td></li>}\\
+\texttt{\small<tr>international<td>1 bag</td><td>2 bags</td><td>3 bags</td></li>}\\
+\texttt{\small</table>}\\\hline
+\end{tabular}
+\end{table}
+
+We extract those HTML list structures based on the HTML patterns listed in Table~\ref{tab:facet-patterns}. Note that we do not match the HTML patterns with the HTML code exactly. Instead, we parse the HTML page into objects and extract textual content in the tags that we are interested in. We describe the extraction in details below:
+\begin{itemize}
+ \item \textbf{SELECT}: For the SELECT tag, we extract textual content in the OPTION tags as a candidate lists. For the example in Table~\ref{tab:facet-html}, we will extract candidate list \{\concept{first class}, \concept{business class}, \concept{economy class}\}.
+\item \textbf{OL}: For the OL tag, we extract textual content in the LI tags as a candidate lists. For the example in Table~\ref{tab:facet-html}, we will extract candidate list \{\concept{checked baggage allowance}, \concept{carry on baggage allowance}, \concept{excess baggage allowance}\}.
+\item \textbf{UL}: Similarly, for the UL tag, we also extract textual content in the LI tags as a candidate lists. For the example in Table~\ref{tab:facet-html}, we will extract candidate list \{\concept{Courtesy bags}, \concept{Dangerous goods}, \concept{Electronic devices}, \concept{Sports equipment}\}. Note that in this case, when extracting textual content in the LI tags, we ignore other HTML tags/formatting (\ie, \concept{<a>}).
+\item \textbf{TABLE}: for HTML tables, following \citet{dou2011finding}, we extract candidate lists from each columns and each rows. For the example in Table~\ref{tab:facet-html}, we will extract 7 candidate lists.
+To list a few, \{\concept{economy}, \concept{business}, \concept{first}\} and \{\concept{domestic}, \concept{2 bag}, \concept{3 bags}, \concept{4 bags}\} are extracted from the first two rows. \{concept{domestic}, \concept{international}\} and \{\concept{economy}, \concept{2 bags}, \concept{1 bag}\} are extracted from the first two columns.
+\end{itemize}
+
+
+Ordered lists (OL) and unordered lists (UL) can be nested, as shown in Figure~\ref{fig:nestedlist}. For nested HTML lists, we extract all sibling items from each level. For the example in Figure~\ref{fig:nestedlist}, we will extract two lists,
 \{\concept{Coffee}, \concept{Tea}, \concept{Milk}\} and \{\concept{Black tea}, \concept{Green tea}\}.
-For HTML tables, following Dou et al.~\cite{dou2011finding}, lists from each column and each row are extracted.
 
 \begin{figure}[ht!]
 \centering
@@ -100,23 +171,25 @@ For HTML tables, following Dou et al.~\cite{dou2011finding}, lists from each col
 \label{fig:nestedlist}
 \end{figure}
 
-After extracting the candidates from the top ranked search results, we further clean them as follows.
-First, all the list items are normalized by converting text to lowercase and removing non-alphanumeric characters.
-Then, we remove stopwords and duplicate items in each lists.
-Finally, we discard all lists that contain only one item or more than 200 items. 
+\subsection{Candidate List Cleaning}
+After extracting candidate lists from the top ranked search results, we further clean them as follows:
+\begin{enumerate}[label={(\arabic*)}]
+ \item First, all the list items are normalized by converting text to lowercase and removing non-alphanumeric characters.
+ \item Then, we remove stopwords and duplicate items in each lists.
+ \item Finally, we discard all lists that contain only one item or more than 200 items. 
+\end{enumerate}
 
-After the cleaning process, we harvest a set of query facet candidates, which we call \textbf{candidate lists}. We name terms in a candidate list \textbf{list items}, in order to differentiate with facet terms (\ie, terms in a query facet).
-%$\mathcal{L}=\{L\}$, where each list $L=\{t\}$ is a set of list items.
+After the cleaning process, we harvest a set of candidate lists, from which we want to build high-quality query facets. 
 
-\subsection{Facet Refining}
+\section{Facet Refining}
 \label{sec:facet-refine}
 The candidate lists extracted are usually noisy~\cite{zhang2009employing},
-and could be non-relevant to the issued query, therefore they cannot be used directly as query facets. For example, Table~\ref{tab:candidates} shows four candidate lists extracted for the query \concept{baggage allowance}. $L_1$ contains terms that are relevant to \concept{baggage allowance}, but they are not coordinate terms -- \concept{delta}, \concept{france} and \concept{round-trip} are not members of the same class. 
+and could be non-relevant to the issued query, therefore they cannot be used directly as query facets. For example, Table~\ref{tab:facet-candidates} shows four candidate lists extracted for the query \concept{baggage allowance}. $L_1$ contains terms that are relevant to \concept{baggage allowance}, but they are not coordinate terms -- \concept{delta}, \concept{france} and \concept{round-trip} are not members of the same class. 
 $L_2$ is a valid query facet, but it is incomplete -- another airline \concept{aa} appears in $L_3$. $L_3$ is mixed with different facets, airlines and travel classes. $L_4$ is non-relevant to the query. 
 \begin{table}[ht!]
 \centering
 \caption{Four candidate lists for the query \concept{baggage allowance}}
-\label{tab:candidates}
+\label{tab:facet-candidates}
 \begin{tabular}{|l|} \hline
  %Candidate facets \\ \hline
 $L_1$: delta, france, round-trip\\
@@ -127,8 +200,14 @@ $L_4$: hard to remember, playing it by ear, ...\\
 \end{tabular}
 \end{table}
 
-Since the candidate lists are frequently noisy, we need an effective way to refine extracted candidate lists into high-quality query facets. The facet refining problem can be essentially viewed as a \emph{selective} clustering problem, in which noisy terms are discarded, and facet terms (\eg, \concept{aa}, \concept{delta}, \concept{jetblue}, \concept{british airways}, \concept{first}, \concept{business} and \concept{economy}) are selected, then clustered into query facets (\eg, \{\concept{aa}, \concept{delta}, \concept{jetblue}, \concept{british airways}\} and \{\concept{first}, \concept{business},\concept{economy}\}). 
-Facet refining is the core problem of query facet extraction. Existing models differ in how they refine candidate lists. To address this problem, we develop a supervised method based on a graphical model, which will be presented in the next section.
+Since the candidate lists are frequently noisy, we need an effective way to refine extracted candidate lists into high-quality query facets. We call this problem \textbf{facet refining}, in which we take a set of candidate lists as input, and want to output high-quality query facets. This facet refining problem is the core issue in query facet extraction, and the focus of our study. Existing query facet extraction models differ in how they refine candidate lists.
+
+One related work about facet refining~\cite{dou2011finding} clusters similarity candidate lists together as query facets (called query dimensions in their original paper), and then ranks/selects clusters and cluster items based on heuristics scores. We find this method is difficult to incorporate features. It also does not have the flexibility of breaking a candidate list into two query facets. We will describe more about this method and other related method for facet refining in Section~\ref{sec:facet-other}. We will also compare these methods with our models in Chapter~\ref{ch:intrinsiceval} and Chapter~\ref{ch:extrinsiceval}.
+
+We instead treat the facet refining problem as a \textbf{selective clustering} problem. In the selective clustering problem, we do not cluster all given items, but only cluster a subset of the items. 
+In the case of facet refining, we want to discard noisy terms, and cluster only facet terms in the candidate lists (\eg, \concept{aa}, \concept{delta}, \concept{jetblue}, \concept{british airways}, \concept{first}, \concept{business} and \concept{economy} in Table~\ref{tab:facet-candidates}) into query facets (\eg, \{\concept{aa}, \concept{delta}, \concept{jetblue}, \concept{british airways}\} and \{\concept{first}, \concept{business},\concept{economy}\}). We will present this problem more formally in Section~\ref{sec:facet-formulation}.
+
+To address this problem, we develop a supervised method based on a graphical model, which will be presented in the next section.
 
 
 \section{Query Faceting Models}
@@ -322,12 +401,11 @@ For example, when $Z_{1,2}=1$, $Z_{2,3}=1$, we may have $Z_{1,3}=0$.
 Therefore, the labeling results may induce an overlapping clustering.
 Unfortunately, this optimization problem is NP-hard, which can be proved by a reduction from the Ising model~\cite{barahona1982computational}.
 
-To simplify the problem, we add the strict partitioning constraint that each facet term belongs to exactly one query facet.
-Also, to directly produce the query facets, instead of inducing them after predicting labels, we rephrase the optimization problem as follows. First, we use the following notations for log-likelihoods,
+To facilitate developing solutions, we add the strict partitioning constraint that each facet term belongs to exactly one query facet. Also, to directly produce the query facets, instead of inducing them after predicting labels, we rephrase the optimization problem as follows. First, we use the following notations for log-likelihoods,\todo{clear up the equations}
 \begin{eqnarray*}
  s_t(t_i) &=& \log P(y_i=1|t_i)      \nonumber \\
   \overline{s_t}(t_i)&=&\log \left( 1-P(y_i=1|t_i) \right) \nonumber \\
- s_p(t_i, t_j)&=&\log P(p_{i,j}=1|p_{i,j},y_i=1,y_j=1) \nonumber \\
+ s_p(t_i, t_j)&=&\log P(z_{i,j}=1|p_{i,j},y_i=1,y_j=1) \nonumber \\
   \overline{s_p}(t_i, t_j)&=&\log\left(1-P(p_{i,j}=1|p_{i,j},y_i=1,y_j=1)\right) \nonumber
 \end{eqnarray*}
 Using the notations above, the log-likelihood $l(\mathcal{F})$ for a particular query facet set $\mathcal{F}$ formed from $\mathcal{L}$ can be written as 
@@ -344,6 +422,7 @@ In the right hand side of Equation~\ref{eq:targetp}, the first term  is the intr
 This optimization problem, however, is still NP-hard, which can be proved by a reduction from the Multiway Cut problem~\cite{bansal2002correlation}.
 Therefore, we propose two algorithms, \textbf{QF-I} and \textbf{QF-J}, to approximate the results.
 
+\todo{add proof for NP-hardness}
 \subsubsection{QF-I}
 QF-I approximates the results by predicting whether a list item is a facet term and whether two list items should be grouped in a query facet independently, which is accomplished two phases.
 In the first phase, QF-I selects a set of list items as facet terms according to $P(y_i|t_i)$.
