@@ -420,12 +420,12 @@ l_p(\mathcal{F}) &=&\sum_{F \in \mathcal{F}}{\sum_{t_i,t_j \in F}{s_p(t_i,t_j)}}
 In the right hand side of Equation~\ref{eq:targetp}, the first term  is the intra-facet score, which sums up $s_p(\cdot, \cdot)$ for all the item pairs in each query facet. The second term is the inter-facet score, which sums up the $\overline{s_p}(\cdot,\cdot)$ for each item pair that appears in different query facets. Then the optimization target becomes $\mathcal{F}=\arg\max_{\mathcal{F}\in\mathfrak{F}}{l(\mathcal{F})}$, where $\mathfrak{F}$ is the set of all possible query facet sets that can be generated from $\mathcal{L}$ with the strict partitioning constraint.
 
 This optimization problem, however, is still NP-hard, which can be proved by a reduction from the Multiway Cut problem~\cite{bansal2002correlation}.
-Therefore, we propose two algorithms, \textbf{QF-I} and \textbf{QF-J}, to approximate the results.
+Therefore, we propose two algorithms, \textbf{QFI} and \textbf{QFJ}, to approximate the results.
 
 \todo{add proof for NP-hardness}
-\subsubsection{QF-I}
-QF-I approximates the results by predicting whether a list item is a facet term and whether two list items should be grouped in a query facet independently, which is accomplished two phases.
-In the first phase, QF-I selects a set of list items as facet terms according to $P(y_i|t_i)$.
+\subsubsection{QFI}
+QFI approximates the results by predicting whether a list item is a facet term and whether two list items should be grouped in a query facet independently, which is accomplished two phases.
+In the first phase, QFI selects a set of list items as facet terms according to $P(y_i|t_i)$.
 In this way, the algorithm predicts whether a list item $t_i$ is a facet term independently, ignoring the dependences between $y_i$ and its connected variables in $Z$.
 In our implementation, we simply select list items $t_i$ with  $P(t_i)> w_{min}$ as facet terms. (For convenience, we use $P(t_i)$ to denote $P(y_i=1|t_i)$.)
 In the second phase, the algorithm clusters the facet terms $T_\mathcal{F}$ selected in the first phase into query facets, according to $P(t_i,t_j)$. ($P(t_i, t_j)$ is used to denote $P(z_{i,j}=1|p_{i,j},y_i=1,y_j=1)$).
@@ -433,7 +433,7 @@ Many clustering algorithm can be applied here, using $P(t_i,t_j)$ as the distanc
 For our implementation, we use a cluster algorithm based on WQT~\cite{dou2011finding}, because it considers the importance of nodes while clustering.
 We use $P(t_i)$ as the measure for facet term importance, and $d_t(t_i,t_j)=1-P(t_i, t_j)$ as the distance measure for facet terms. The distance between a cluster and a facet term is computed using complete linkage distance, $d_f(F,t)=max_{t' \in F}{d(t, t')}$, and the diameter of a cluster can be calculated as $dia(F)=\max_{t_i,t_j\in F}{d_t(t_i,t_j)}$. The algorithm is summarized in Algorithm~\ref{alg:qfi}. It processes the facet terms in decreasing order of $P(t)$. For each facet term remaining in the pool, it builds a cluster by iteratively including the facet term that is closest to the cluster, until the diameter of the cluster surpasses the threshold $d_{max}$.
 \begin{algorithm}[ht!]
- \caption{WQT for clustering facet term used in QF-I}
+ \caption{WQT for clustering facet term used in QFI}
 \label{alg:qfi}
 \begin{algorithmic}[1]
   \Require $T_{\mathcal{F}}, P(t), d_f(F,t), dia(F), d_{max}$
@@ -450,15 +450,15 @@ We use $P(t_i)$ as the measure for facet term importance, and $d_t(t_i,t_j)=1-P(
 \end{algorithm}
 
 
-\subsubsection{QF-J}
-QF-I finds query facets based on the graphical model by performing inference of $y_i$ and $z_{i,j}$ independently.
-The second algorithm, QF-J, instead tries to perform joint inference by approximately maximizing our target $l(\mathcal{F})$ with respect to  $y_i$ and $z_{i,j}$ iteratively.
+\subsubsection{QFJ}
+QFI finds query facets based on the graphical model by performing inference of $y_i$ and $z_{i,j}$ independently.
+The second algorithm, QFJ, instead tries to perform joint inference by approximately maximizing our target $l(\mathcal{F})$ with respect to  $y_i$ and $z_{i,j}$ iteratively.
 The algorithm first guesses a set of list items as facet terms.
 Then it clusters those facet terms by approximately maximizing $l_p(\mathcal{F})$, using a greedy approach. 
 After clustering, the algorithm checks whether each facet term ``fits'' in its cluster, and removes those that do not fit.
 Using the remaining facet terms, the algorithm repeats the process (clustering and removing outliers) until convergence.
 
-QF-J is outlined in Algorithm~\ref{alg:qfj}. The input to the algorithm are the candidate list item set $T_{\mathcal{L}}$,
+QFJ is outlined in Algorithm~\ref{alg:qfj}. The input to the algorithm are the candidate list item set $T_{\mathcal{L}}$,
 and the log-likelihoods $l(\mathcal{F})$, $l_p(\mathcal{F})$.
 In the first step, we select top $n$ list items according to $s_t(t)$ as the initial facet terms, because it is less sensitive to the absolute value of the log-likelihood.
 In our experiment, $n$ is set to 1000 to make sure most of the correct facet terms are included.
@@ -474,7 +474,7 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
 
 
 \begin{algorithm}[ht!]
- \caption{QF-J}
+ \caption{QFJ}
 \label{alg:qfj}
 \begin{algorithmic}[1]
   \Require $T_{\mathcal{L}}=\{t\}, l, l_p$
@@ -525,7 +525,7 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
 \end{algorithm}
 
 \subsection{Ranking Query Facets}
-The output of QF-I and QF-J is a query facet set $\mathcal{F}$. To produce ranking results, we defined a score for a query facet as $score_F(F)=\sum_{t \in F}{P(t)}$, and rank the query facets according to this scoring, in order to present more facet terms in the top. Facet terms within a query facet are ranked according to $score_t(t)=P(t)$. We leave the investigation for more sophisticated ranking models as future work.
+The output of QFI and QFJ is a query facet set $\mathcal{F}$. To produce ranking results, we defined a score for a query facet as $score_F(F)=\sum_{t \in F}{P(t)}$, and rank the query facets according to this scoring, in order to present more facet terms in the top. Facet terms within a query facet are ranked according to $score_t(t)=P(t)$. We leave the investigation for more sophisticated ranking models as future work.
 
 \section{Other Approaches}
 \label{sec:facet-other}

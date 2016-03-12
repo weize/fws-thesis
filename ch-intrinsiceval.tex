@@ -14,7 +14,7 @@ To combine the two evaluation aspects, we design a new measure called $PRF_{\alp
 
 However, $PRF_{\alpha,\beta}$ does not directly account for facet ranking performance. Dou et al.~\cite{dou2011finding} used some variations of nDCG to evaluate facet ranking. In the nDCG variation measures, system facets are mapped to truth facets, and assigned ratings according to their mapped truth facets. Then the ranked system facets are evaluated using nDCG, with the discounted gain further weighted by the precision and recall of the system facet and mapped truth facet. However, we will show that this metric can be problematic in some cases.
 
-In the experiments of this chapter, we perform intrinsic evaluation on the different query facet extraction models described in Chapter~\ref{ch:facet}. The experimental results show that our supervised method (QF-I and QF-J) proposed in Chapter~\ref{ch:facet} significantly outperforms other unsupervised methods, suggesting that query facet extraction can be effectively learned.
+In the experiments of this chapter, we perform intrinsic evaluation on the different query facet extraction models described in Chapter~\ref{ch:facet}. The experimental results show that our supervised method (QFI and QFJ) proposed in Chapter~\ref{ch:facet} significantly outperforms other unsupervised methods, suggesting that query facet extraction can be effectively learned.
 
 In the rest of this chapter, we will first described how we collect data and perform facet annotation for intrinsic evaluation in Section~\ref{sec:ie-data}. Then, we will describe different evaluation metrics in Section~\ref{sec:ie-metrics}, including $PRF_{\alpha,\beta}$ and other existing measures. We will present our experiments for comparing different query facet extraction models in Section~\ref{sec:ie-exp}, followed by conclusions in Section~\ref{sec:ie-conclusions}. 
 %The work in this chapter is completed and published~\cite{kong2013extracting}.
@@ -100,7 +100,7 @@ where the \concept{T} in measure names $T\!P$, $T\!R$, $T\!F$ stands for facet \
 %The system identified facet terms, $T$, are evaluated against human labeled ones, $T^*$, using Precision, Recall and F1.
 
 \subsection{Clustering quality}
-\label{sec:intrinsic-clustering}
+\label{sec:intrinsic-pmeasures}
 To evaluate how well a system groups facet terms correctly,
 similar to Dou et al.~\cite{dou2011finding}, we use several existing cluster metrics, namely, Purity, NMI/Normalized Mutual Information and pair-counting F1 measure. Here the pair-counting F1 measure treats term clustering as classification on whether each pairs of terms are in a same facet, and then combines pair precision and recall using F1 measure. We denote the pair-counting F1 measure as $P\!F$ with \concept{P} standing for term \emph{pair}.
 
@@ -110,9 +110,10 @@ In our task, we usually have $T\neq T^*$. The facet terms in the system generate
 
 \subsection{Overall quality}
 \label{sec:evalmetricsall}
-To evaluate the overall quality of query facet extraction, Dou et al.~\cite{dou2011finding} proposed variations of nDCG (Normalized Discounted Cumulative Gain), namely fp-nDCG and rp-nDCG. They first map each system generated facet $F$ to a human labeled facet $F^*$ that covers the maximum number of terms in $F$. Then, they assign the rating $r_{F^*}$ to $F$, and evaluate $\mathcal{F}$ as a ranked list of query facets using nDCG.
-The discounted gains are weighted by precision and/or recall of facet terms in $F$, against its mapped human labeled facet $F^*$. For fp-nDCG, only precision is used as weight, $\frac{|F^* \cap F|}{|F|}$.
-For rp-nDCG, precision and recall are multiplied as weight, $\frac{|F^* \cap F|^2}{|F^*||F|}$. 
+\todo{more details, and re-structure}
+To evaluate the overall quality of query facet extraction, Dou et al.~\cite{dou2011finding} proposed variations of nDCG (Normalized Discounted Cumulative Gain), namely purity aware nDCG (pNDCG, abbreviated as fp-nDCG in the original paper) and recall and purity aware nDCG (prNDCG, abbreviated as rp-nDCG in the original paper). They first map each system generated facet $F$ to a human labeled facet $F^*$ that covers the maximum number of terms in $F$. Then, they assign the rating $r_{F^*}$ to $F$, and evaluate $\mathcal{F}$ as a ranked list of query facets using nDCG.
+The discounted gains are weighted by precision and/or recall of facet terms in $F$, against its mapped human labeled facet $F^*$. For \textbf{pNDCG}, only precision is used as weight, $\frac{|F^* \cap F|}{|F|}$.
+For \textbf{prNDCG}, precision and recall are multiplied as weight, $\frac{|F^* \cap F|^2}{|F^*||F|}$. One other way is to use F1 for weighting as $\frac{2|F^* \cap F|}{|F^*| + |F|}$, and we call this measure \textbf{fNDCG}.
 
 However, this these nDCG variation measures can be problematic in some cases.
 When two facets $F_1$ and $F_2$ are mapped to a same human labeled facet $F^*$, only the first facet $F_1$ is credited and $F_2$ is simply ignored, even if it is more appropriate to map $F_2$ to $F^*$ (e.g., $F_2$ is exactly same as $F^*$, while $F_1$ contain only one facet term in $F^*$). Our proposed metric does not need to map facets, and thus does not have this problem.
@@ -158,7 +159,7 @@ We assign weight for facet term pair $w(t_1, t_2)$ using their sum, $w(t_1) + w(
 \todo{add more experiments testing extraction patterns, features}
 \subsection{Experiment settings}
 \todo{separate to multiple paragraphs}
-We compare effectiveness of the five models, QDM, pLSA, LDA and QF-I, QF-J (described in Chapter~\ref{ch:facet}), on the 100-query data set.
+We compare effectiveness of the five models, QDM, pLSA, LDA and QFI, QFJ (described in Chapter~\ref{ch:facet}), on the 100-query data set.
 All the models take the same candidate lists extracted/cleaned (see Section~\ref{sec:facet-candidate}) as input.
 We perform 10-fold cross validation for training/testing and parameter tuning in all experiments and for all models (if applicable).
 When training the graphical model, we standardize features by removing the mean and scaling to unit variance.
@@ -172,9 +173,9 @@ For QDM, we tune the two parameters used in the clustering algorithm $Dia_{max}$
 For pLSA and LDA, we tune the number of facet terms in a query facet.
 % $n \in \{5, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20\}$.
 %_\{0.4, 0.5, 0.6, 0.7, 0.8\}$
-For QF-I, we tune the weight threshold for facet terms, $w_{min}$, and the diameter threshold,  $d_{max}$.
+For QFI, we tune the weight threshold for facet terms, $w_{min}$, and the diameter threshold,  $d_{max}$.
 %\in \{0.5, 0.6, 0.7\}
-For QF-J, there are no parameter need to be tuned.
+For QFJ, there are no parameter need to be tuned.
 We returned top 10 query facets from all the five models in all evaluation. 
 \subsection{Finding Facet Terms}
 \label{sec:expt}
@@ -187,7 +188,7 @@ While the numbers of facet terms QFI and QFJ output are similar to QDM, QFI and 
 
 \begin{table}[ht!]
 \centering
-\caption{Facet term classification performance. Results in the upper part are tuned on TF, and results in the bottom part are tuned on wTF. ``\#terms'' shows the average number of facet terms in output per query for each models. The best performance scores are marked in boldface.}
+\caption{Facet term classification performance. Results in the upper part are tuned on TF, and results in the bottom part are tuned on wTF. ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface.}
 \label{tab:intrinsic-tf}
 \begin{tabular}{|c|c|c|c|c|c|c|r|} \hline
 \multicolumn{8}{|c|}{Tuned on TF} \\\hline
@@ -209,87 +210,101 @@ QFI & \textbf{0.4058} & 0.5670 & \textbf{0.4461} & \textbf{0.3623} & 0.5126 & \t
 \end{table}
 
 From Table~\ref{tab:intrinsic-tf}, we also find the the weighted measures are usually consistent with their corresponding unweighted measures.
-%One exception is that QF-J performs better than QF-I in FT, but it does slightly worse than QF-J in wFT. This is likely to be caused by the high recall for QF-I, which may include more highly rated facet terms.
+%One exception is that QFJ performs better than QFI in FT, but it does slightly worse than QFJ in wFT. This is likely to be caused by the high recall for QFI, which may include more highly rated facet terms.
 
 \subsection{Clustering Facet Terms}
-Table~\ref{tab:evalcluster} shows clustering performance of the five models, which are tuned on wFP.
-The improvements of QF-I and QF-J over the other three models shown are all significant (p < 0.05, using paired t-test).
-pLSA and LDA do not perform well in clustering, which could be caused by data sparsity.
-There are on average 5159 candidate lists per query, but only 3.9 items per list.
-\begin{table}[ht!]
-\centering
-\caption{Facet clustering performance tuned on wPF}
-\label{tab:evalcluster}
-\begin{tabular}{|c|c|c|c|c|} \hline
-Model &Purity & NMI & PF & wPF \\ \hline
-pLSA &  0.793 & 0.524  &  0.230 & 0.229 \\
-LDA  &  0.773 &  0.511 &  0.227 & 0.226 \\
-QDM  & 0.871 & 0.565 &  0.367 & 0.380 \\
-QF-I  &  0.843 & 0.606 &  \textbf{0.408} & \textbf{0.410} \\
-QF-J  & \textbf{0.922} & \textbf{0.631} &  0.352 & 0.346 \\\hline
-\end{tabular}
-\end{table}
+Next, we evaluate the models in terms of their effectiveness in clustering facet terms, using clustering measures described in Section~\ref{sec:intrinsic-pmeasures}. More specifically, we compare the clustering performance of these models in terms of pair counting F1 (PF), wPF (weighted version of PF), Purity and NMI (Normalized Mutual Information). We compare results tuned on PF  and wPF, which takes facet term weighting into account.
+
+We report the results in Table~\ref{tab:intrinsic-pair}. From the table, we can see that QFI and QFJ perform relatively well for PF, wPF and NMI. The improvements of QFI and QFJ over the other three models shown are all significant (p < 0.05, using paired t-test)\todo{test}. For purity, pLSA and LDA obtain relatively higher score, which is due to that they returned relatively small number of facet terms (shown in ``\#terms'' fields), and thus only cluster a very small number of terms together in each clusters.  These observations are consistent for the runs tuned on PF and its weighted version, wPF.
+
+%Contrarily, pLSA and LDA do not perform for other clustering measures. well in clustering, which could be caused by data sparsity. There are on average 5159 candidate lists per query, but only 3.9 items per list. 
 
 \begin{table}[ht!]
 \centering
-\caption{Weights learned for item pair features}
-\label{tab:fweightsp}
-\begin{tabular}{|l|r|} \hline
-Feature & Weight \\\hline
-listContextSim & 1.4944 \\
-textContextSim & 0.7186 \\
-listCooccur & 0.0817 \\
-lengthDiff & 0.0563 \\\hline
+\caption{Facet term clustering performance. Results in the upper part are tuned on PF, and results in the bottom part are tuned on wPF. We also report corresponding classification performance in the left part using term precision (TP), term recal (TR) and term F1 (TF). ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface.}
+\label{tab:intrinsic-pair}
+\begin{tabular}{|c|c|c|c|c||c|c|c|r|} \hline
+\multicolumn{9}{|c|}{Tuned on PF} \\\hline
+Model & PF & wPF & Purity & NMI & TP & TR & TF & \#terms \\ \hline
+QDM & 0.5543 & 0.5435 & 0.9484 & 0.5734 & 0.2489 & 0.2628 & 0.2206 & 103.9 \\ \hline
+pLSA & 0.4270 & 0.4119 & \textbf{0.9746} & 0.5643 & 0.3355 & 0.1255 & 0.1646 & 28.9 \\ \hline
+LDA & 0.3860 & 0.3657 & 0.9672 & 0.5616 & 0.3492 & 0.1388 & 0.1797 & 30.0 \\ \hline
+QFJ & 0.6961 & 0.6633 & 0.9346 & 0.6285 & \textbf{0.3986} & \textbf{0.4832} & \textbf{0.4161} & 97.0 \\ \hline
+QFI & \textbf{0.7397} & \textbf{0.7130} & 0.9628 & \textbf{0.6336} & 0.2063 & 0.4052 & 0.2592 & 161.5 \\ 
+\hhline{|=========|}
+\multicolumn{9}{|c|}{Tuned on wPF} \\\hline
+Model & PF & wPF & Purity & NMI & TP & TR & TF & \#terms \\ \hline
+QDM & 0.5831 & 0.5751 & 0.9772 & 0.5776 & 0.2236 & 0.1763 & 0.1636 & 92.7 \\ \hline
+pLSA & 0.4327 & 0.4223 & \textbf{0.9845} & 0.5673 & 0.3398 & 0.0993 & 0.1437 & 21.8 \\ \hline
+LDA & 0.4176 & 0.4007 & 0.9775 & 0.5646 & 0.3595 & 0.1132 & 0.1575 & 23.4 \\ \hline
+QFJ & 0.6961 & 0.6633 & 0.9346 & 0.6285 & \textbf{0.3986} & \textbf{0.4832} & \textbf{0.4161} & 97.0 \\ \hline
+QFI & \textbf{0.7370} & \textbf{0.7090} & 0.9635 & \textbf{0.6325} & 0.2055 & 0.3993 & 0.2570 & 159.5 \\ \hline
 \end{tabular}
 \end{table}
 
-The better performance in clustering for QF-I and QF-J can be explained by their incorporating factors other than list item co-occurrence information.
-In Table~\ref{tab:fweightsp}, we list the weights learned for item pair features.
-Besides one item co-occurrence related feature, \textit{listContextSim}, we also find that \textit{textContextSim} has a relatively high weight.
-\textit{textContextSim} is used to capture the similarity of the two list items using their surrounding text, so it can help to group two facet terms together even if they might not co-occur a lot in candidate lists.
-As an example, for the query \textit{baggage allowance}, we find different airlines do not co-occur a lot in candidate lists, (e.g. \textit{delta} and \textit{jetblue} only co-occur twice), but they tend to have high \textit{textContextSim} (e.g. $textContextSim(delta,jetblue)=0.81$), and are therefore grouped together by QF-I and QF-J.
+
+The better performance in clustering for QFI and QFJ can be explained by their incorporating factors other than list item co-occurrence information. In our feature analysis (in later sections \todo{add ref}), besides one item co-occurrence related feature, \textit{listContextSim}, we also find that \textit{textContextSim} has a relatively high weight. \textit{textContextSim} is used to capture the similarity of the two list items using their surrounding text, so it can help to group two facet terms together even if they might not co-occur a lot in candidate lists. As an example, for the query \textit{baggage allowance}, we find different airlines do not co-occur a lot in candidate lists, (e.g. \textit{delta} and \textit{jetblue} only co-occur twice), but they tend to have high \textit{textContextSim} (e.g. $textContextSim(delta,jetblue)=0.81$), and are therefore grouped together by QFI and QFJ \todo{check}.
+
+From Table~\ref{tab:intrinsic-pair}, we also find term clustering performance does not necessarily ``agree'' with term classification performance. Comparing QFI and QFJ, we find QFI obtains better clustering performance of the facet terms it selected, but does relatively poorly in selecting facet terms. Thus, next we will investigate the overall performance.
+
 
 \subsection{Overall Evaluation}
-To compare overall effectiveness of the five models, we tune all the models on wPRF, and the results are reported in Table~\ref{tab:evalall}.
+To compare overall effectiveness of the five models, in this section, we focus on using \PRF measure with equal weight between term precision, term recall and term clustering (denoted as PRF). We will investigate unbalanced weighting in \PRF in Chapter~\ref{ch:precision}.
+
+
+We tune all the models on PRF, as well as its weighted version (wPRF). We report the overall measure scores (PRF, wPRF), as well as its constituent factors (TP, TR, PF and wTP, wTR, wPF), in order to see the details. We also report the rank measures, pNDCG, prNDCG and fNDCG, to see if whether PRF based measures agree with these ranking measures. The results are given in Table~\ref{tab:intrinsic-all}.
+
 \begin{table}[ht!]
 \centering
-\caption{Overall performance tuned on wPRF}
-\label{tab:evalall}
-\begin{tabular}{|l|l|l|l|l|} \hline
-Model &  wTP & wTR & wPF & wPRF \\\hline
-pLSA & 0.353 & 0.630 & 0.229 & 0.309\\
-LDA & 0.358 & \textbf{0.670} & 0.225 & 0.311\\
-QDM & 0.523 & 0.388 & 0.253 & 0.319 \\
-QF-I & 0.450 & 0.667 & \textbf{0.399} & \textbf{0.444}\\
-QF-J & \textbf{0.534} & 0.526 & 0.346 & 0.417\\\hline
+\caption{Overall performance tuned on PRF (upper) and wPRF (bottom). We also include term precision (TP), term recall (TR), term clustering pair counting F1 (PF), and their weighted versions (wTP, wTR and wPF). We also report ranking-based measures pNDCG, prNDCG and fNDCG, which weight the DCG gains by purity (or precision), recall and F1 of facet terms respectively. The best performance scores are marked in boldface.}
+\label{tab:intrinsic-all}
+\begin{tabular}{|c|c|c|c|c|c|c|c|r|} \hline
+\multicolumn{9}{|c|}{Tuned on PRF} \\\hline
+Model & TP & TR & PF & PRF & pNDCG & prNDCG & fNDCG & \#terms \\ \hline
+QDM & 0.2946 & 0.3284 & 0.5662 & 0.3279 & 0.1554 & 0.0564 & 0.1441 & 102.5 \\ \hline
+pLSA & 0.2744 & \textbf{0.5027} & 0.4372 & 0.3411 & 0.1294 & 0.0508 & 0.1439 & 148.0 \\ \hline
+LDA & 0.2802 & 0.4975 & 0.4018 & 0.3293 & 0.1307 & 0.0496 & 0.1411 & 138.6 \\ \hline
+QFJ & 0.3986 & 0.4832 & \textbf{0.6961} & 0.4654 & \textbf{0.3256} & \textbf{0.1771} & \textbf{0.2946} & 97.0 \\ \hline
+QFI & \textbf{0.4450} & 0\.4881 & 0.6209 & \textbf{0.4720} & 0.3176 & 0.1626 & 0.2857 & 89.5 \\ 
+\hhline{|=========|}
+\multicolumn{9}{|c|}{Tuned on wPRF} \\\hline
+Model & wTP & wTR & wPF & wPRF & pNDCG & prNDCG & fNDCG & \#terms \\ \hline
+QDM & 0.2572 & 0.2967 & 0.5435 & 0.2941 & 0.1538 & 0.0565 & 0.1441 & 104.9 \\ \hline
+pLSA & 0.2305 & 0.5001 & 0.3998 & 0.3062 & 0.1082 & 0.0500 & 0.1363 & 175.0 \\ \hline
+LDA & 0.2287 & \textbf{0.5276} & 0.3686 & 0.2955 & 0.1065 & 0.0485 & 0.1298 & 180.0 \\ \hline
+QFJ & 0.3482 & 0.4267 & \textbf{0.6633} & 0.4144 & \textbf{0.3256} & \textbf{0.1771} & \textbf{0.2946} & 97.0 \\ \hline
+QFI & \textbf{0.3897} & 0.4420 & 0.5891 & \textbf{0.4263} & 0.3167 & 0.1627 & 0.2858 & 90.6 \\ \hline
 \end{tabular}
 \end{table}
 
-Unweighted metrics are very similar to their corresponding weighted metrics in terms of conclusions, and are omitted due to space limitation.
-Results here are consistent with the results that were tuned on wFT or wFP.
-pLSA and LDA have high recall, but low precision and FP.
-QDM has relatively high precision, but low recall and FP. 
-It has on average 68 facet terms per query as output, and fails to improve the overall effectiveness when including more facet terms in its output. 
-QF-I and QF-J are among the best two models according to both PRF and wPRF.
+Results in Table~\ref{tab:intrinsic-all} are mostly consistent with the results that were tuned on FT and TF (and their weighted version) in the classification and clustering evaluation above. QDM obtain relatively low term precision and low term recall, but better clustering performance on the selected facet terms (PF and wPF). pLSA and LDA have high recall, but low precision and PF/wPF. This is due to that pLSA and LDA return a lot of facet terms. There are on average 81.15 facet terms per query for the human annotated query facets, but pLSA and LDA returned around twice of the amount. QFI and QFJ are the best two models according to the overall performance measures, PRF, wPRF and pNDCG, prNDCG, fNDCG. The differences are statistically significant (p < 0.05 based on paired t-test). We will analysis more on QFI's and QFJ's success in future sections (\todo{add ref}).
 
-Since wPRF does not account for facet ranking effectiveness, we also report fp-NDCG and rp-NDCG tuned on themselves in Table~\ref{tab:evalallrank}. QF-J gives the best performance for both fp-NDCG and rp-NDCG.
-The improvements of QF-I and QF-J over the other three models shown in the Table~\ref{tab:evalall} and \ref{tab:evalallrank} are all significant (p < 0.05, using paired t-test), except the improvements of QF-J over QDM for wP and QF-I over QDM for fp-nDCG.
+Comparing the results tuned on PRF and its weighted version, wPRF, we find weighting encourages returning more facet terms slightly, which is shown in the field \concept{\#terms}, the average number of facet terms returned per query. This can be explained by that returning more terms may increase the number of high-rating facet terms found, and thus increase wPRF.\todo{investigation of weighted measures.} Comparing the results for PRF, wPRF with the results for pNDCG, prNDCG, fNDCG, we find the two types of measures agree with each other in general (\eg, QFJ and QFI are better than other three models), but not always (QFI is better than QFJ for the PRF measures, but worse than QFJ for the NDCG measures). 
+
+
+Since PRF/wPRF do not always agree with the ranking-based measures, and PRF/wPRF do not account for facet ranking effectiveness, we also test the models based on results tuned on these ranking-based measures. We report results for the ranking-based measures and PRF/wPRF tuned on fNDCG in Table~\ref{tab:intrinsic-rank} (results tuned on pNDCG, prNDCG are similar). 
+QFI and QFJ are the best two models for the ranking-based measures. QFJ gives the best performance for prNDCG and fNDCG, which combine both precision and recall of facet terms in weighting DCG. These observations are consistent with the results tuned on PRF/wPRF in Table~\ref{tab:intrinsic-all}. 
+\todo{add t-test}
+%The improvements of QFI and QFJ over the other three models shown are significant (p < 0.05, using paired t-test), except the improvements of QFJ over QDM for wP and QFI over QDM for fp-nDCG.
+
 \begin{table}[ht!]
 \centering
 \caption{fp-nDCG and rp-nDCG tuned on themselves}
-\label{tab:evalallrank}
-\begin{tabular}{|l|l|l|} \hline
-Model &  fp-nDCG & rp-nDCG\\\hline
-pLSA & 0.250 & 0.071\\
-LDA &  0.238 & 0.063 \\
-QDM & 0.257 & 0.093  \\
-QF-I & 0.290 & 0.157\\
-QF-J & \textbf{0.336} & \textbf{0.193}\\\hline
+\label{tab:intrinsic-rank}
+\begin{tabular}{|c|c|c|c|c|c|r|} \hline
+Model & pNDCG & prNDCG & fNDCG & PRF & wPRF & \#terms \\ \hline
+QDM & 0.1442 & 0.0550 & 0.1410 & 0.3331 & 0.2991 & 113.4 \\ \hline
+pLSA & 0.1838 & 0.0674 & 0.1756 & 0.3303 & 0.2880 & 139.0 \\ \hline
+LDA & 0.1718 & 0.0594 & 0.1588 & 0.3259 & 0.2844 & 145.5 \\ \hline
+QFJ & 0.3256 & \textbf{0.1771} & \textbf{0.2946} & 0.4654 & 0.4144 & 97.0 \\ \hline
+QFI & \textbf{0.3350} & 0.1618 & 0.2825 & \textbf{0.4678} & \textbf{0.4197} & 77.5 \\ \hline
 \end{tabular}
 \end{table}
 
+
+
 \section{Summary} \label{sec:ie-conclusions}
-In this chapter, we designed intrinsic evaluation to directly evaluate generated query facets by comparing them with human created ones. We designed an new evaluation metric that combines recall and precision of facet terms with grouping quality. Experimental results show that our supervised method (QF-I/QF-J), described in Chapter~\ref{ch:facet}, can take advantage of a richer set of features and outperforms other unsupervised methods.
+In this chapter, we designed intrinsic evaluation to directly evaluate generated query facets by comparing them with human created ones. We designed an new evaluation metric that combines recall and precision of facet terms with grouping quality. Experimental results show that our supervised method (QFI/QFJ), described in Chapter~\ref{ch:facet}, can take advantage of a richer set of features and outperforms other unsupervised methods.
 
 One thing we note is that term precision tends to be low while recall is high in these results. In the next chapter, we explore methods for boosting precision on the assumption that it is often very important.
 
