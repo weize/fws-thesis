@@ -275,68 +275,111 @@ where the $P(y_i|t_i)$ and $P(z_{i,j}|p_{i,j}, y_i, y_j)$ are defined in Equatio
 
 \subsubsection{Features}
 \label{sec:facet-features}
-There are two types of features used in our graphical model, summarized in Table~\ref{tab:feature}.
+There are two types of features used in our graphical model, term features and (term) pair features. 
 
-\textbf{Item features}, $f_k(t)$ in the graphical model, characterize a single list item.
-To capture the relevance of item $t$ to the query, 
-we use some TF/IDF-based features extracted from the top $k$ search results, $\mathcal{D}$.
-For example, \textit{snippetDF} is the number of snippets in top $k$ search results that contain item $t$.
-\textit{snippetDF} and other frequency-based features are normalized using $log(frequency+1)$.
-To capture how likely item $t$ is to be an instance of a semantic class, we use features extracted from candidate lists.
-For example, \textit{listTF} is the frequency of $t$ in the candidate lists extracted from $\mathcal{D}$.
-Some list items occur frequently in candidate lists across different queries, such as 
-\textit{home}, \textit{contact us} and \textit{privacy policy}. They are treated as stopwords, and removed from the candidate lists.
-We also use $listIDF$ to cope with this problem. 
-$listIDF$ is the IDF of a list item in a general collection of candidate lists we extracted (see Section~\ref{sec:ie-data}).
-It is calculated as $listIDF(t)=\log{\frac{N-N_{t}+0.5}{N_t+0.5}}$, where $N$ is the total number of lists in the collection, 
-$N_t$ is the number of lists contain $t$.
-The same form is used for \textit{clueIDF}, IDF in ClueWeb09\footnote{http://lemurproject.org/clueweb09} collection.
+\textbf{Item features}, $f_k(t)$ in the graphical model, characterize a single list item in terms of whether the item is a facet term. There are two factors we consider: (1) relevance to the query and (2) quality as a coordinate term. We design a rich set of features to capture the two factors from different perspectives. More specifically, the features we designed are based on different data sources, and based on different types of frequency counts as described in details below.
 
-\textbf{Item Pair Features}, $g(p_{i,j})$ in the graphical model, 
-are used to capture how likely a pair of list items should be grouped into a query facet,
-given that the two list item both are facet terms.
-This can be measured by context similarity~\cite{shi2010corpus}.
-For \textit{textContextSim}, we use window size 25, and represent text context as a vector of TF weights.
-Cosine similarity is used as the similarity measure.
-Similarly, we use the candidate lists that contain the list item as its list context, and calculate \textit{listContextSim}
-in the same way as \textit{textContextSim}.
+The different data sources we used include a large web corpus (ClueWeb09), the list item itself, and the top search result webpages. For the top search results, we consider extraction on the following fields/parts:
+\begin{itemize}
+ \item Content: the textual content of the search result webpages
+ \item Title: the title of the search result webpages
+ \item List: the candidate lists extracted from the search results. We also consider the candidate lists extracted by each extraction patterns (Section~\ref{sec:facet-candidate}) separately, as we find these patterns are of different extraction qualities \todo{add ref}.
+  \begin{itemize}
+   \item Text: candidate lists extracted based on the lexical pattern
+   \item Ol: candidate lists extracted based on the OL pattern
+   \item Ul: candidate lists extracted based on the UL pattern
+   \item Select: candidate lists extracted based on the SELECT pattern
+   \item Tr: candidate lists extracted based on the TABLE pattern, and extracted by the rows.
+   \item Td: candidate lists extracted based on the TABLE pattern, and extracted by the columns.
+  \end{itemize}
+\end{itemize}
 
-\begin{table}[t!]
-\vspace{-3mm}
+We extract the following types of frequency counts (on the different fields) as features. Note that these frequency-based features are normalized using $log(frequency+1)$ \todo{explain why}.
+\begin{itemize}
+ \item Termfreq: item/term frequency, the frequency of the list item.
+ \item PageFreq: page frequency, the number of search result webpages that contain the list item.
+ \item WpageFreq: weighed PageFreq. Each search result webpage count is weighted by its rank, $1/\sqrt{rank}$. This assume that the webpages in the top ranks are more important.
+ \item SiteFreq: site frequency, the number of unique websites of the search results that contain the list item. SiteFreq addresses the following problem of PageFreq. Some websites have a fixed template for all of its webpages.  Search results may contains multiple webpages from the same website. In that case, the candidate lists extracted from the template part may repeat multiple times, and be favored by PageFreq unreasonably.  
+\end{itemize}
+
+We list all item features in Table~\ref{tab:facet-tfeature}. To capture the relevance of list item (or term) to the query, we use some TF/IDF-based features extracted based on the search result content (Content), title (Title), a webpage corpus (Global corpus), and their combination (Combination). For example, \textit{ContentTermFreq} is the frequency count of the item in the text content of the top $k$ search results. \textit{TitleSiteFreq} is the number of webpages in the top $k$ search results that contain the item in their title. \textit{IDF} is the inverse document frequency of the list item based on a large web page corpus, ClueWeb09\footnote{http://lemurproject.org/clueweb09}. IDF is useful in down-weighting terms that occur frequently in generally, and likely to be less important. We calculate IDF as $IDF(t)=\log{\frac{N-N_{t}+0.5}{N_t+0.5}}$, where $N$ is the total number of documents in the collection, $N_t$ is the number of documents that contain $t$ (document frequency). Besides relevance to the query and quality as coordinate terms, a facet term should also be succinct. Thus we also use feature \textit{Length}, which count the number of words in the list item.
+
+
+\begin{table}[h!]
 \centering
-\caption{Item and item pair features}
-\label{tab:feature}
-\begin{tabular}{ |l|l| }
-  \hline
-  \multicolumn{2}{|c|}{Item Features for list item $t$} \\
-  \hline
-  length  & Number of words in $t$ \\
-  clueIDF & IDF of $t$ in ClueWeb09 collection\\
-  TF & Term frequency of $t$ in $\mathcal{D}$\\
-  DF & Document frequency of $t$ in $\mathcal{D}$\\
-  wDF & Weighted DF. Each document count \\ & weighted by $1/\sqrt{docRank}$\\
-  SF & Site frequency. Number of unique \\ & websites  in $\mathcal{D}$ that contain $t$\\
-  titleTF & TF of $t$ for the titles of $\mathcal{D}$\\
-  titleDF & DF of $t$ for the titles of $\mathcal{D}$\\
-  titleSF & SF of $t$ for the titles of $\mathcal{D}$\\
-  snippetTF & TF of $t$ for the snippets of $\mathcal{D}$\\
-  snippetDF & DF of $t$ for the snippets of $\mathcal{D}$\\
-  snippetSF & SF of $t$ for the snippets of $\mathcal{D}$\\ 
-  listTF & Frequency of $t$ in candidate lists \\ & extracted from $\mathcal{D}$\\
-  listDF & Number of documents that contain $t$ \\ & in their candidate lists\\
-  listSF & Number of unique websites that \\ & contain $t$  in their candidate lists\\
-  listIDF & IDF of $t$ in a general candidate list\\ &  collection\\
-  TF.clueIDF & TF $\times$ clueIDF\\
-  listTF.listIDF & listTF $\times$ lisIDF\\
-  \hline
-  \multicolumn{2}{|c|}{Item Pair Features for item pair $p_{i,j}=(t_i, t_j)$} \\ \hline
-  lengthDiff  & Length difference, $|len(t_i) - len(t_j)|$ \\
-  listCooccur & Number of candidate lists extracted \\ & from $\mathcal{D}$, in which $t_i$, $t_j$ co-occur\\
-  textContextSim & Similarity between text contexts\\
-  listContextSim & Similarity between list contexts\\
+\caption{Item features}
+\label{tab:facet-tfeature}
+\begin{tabular}{|c|c|l|l|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Field/Source}}                &  \textbf{Feature} & \textbf{Description}\\ \hline
+\multicolumn{2}{|c|}{\multirow{4}{*}{Content}}   & ContentTermFreq & TermFreq in Content\\ 
+\multicolumn{2}{|l|}{}                    &  ContentPageFreq & PageFreq in Content \\  
+\multicolumn{2}{|l|}{}                    &  ContentWpageFreq & WpageFreq in Content \\  
+\multicolumn{2}{|l|}{}                    &  ContentSiteFreq & SiteFreq in Content \\ \hline  
+\multicolumn{2}{|c|}{\multirow{3}{*}{Title}}   & TitleTermFreq & TermFreq in Title  \\ 
+\multicolumn{2}{|l|}{}                    &  TitlePageFreq & PageFreq in Title \\  
+\multicolumn{2}{|l|}{}                    &  TitleSiteFreq & SiteFreq in Title \\  \hline
+		   \multirow{18}{*}{List} & \multirow{3}{*}{ListText} & ListTextTermFreq & TermFreq in ListText \\ 
+						 &                   &  ListTextPageFreq & PageFreq in ListText \\ 
+					         &                   &  ListTextSiteFreq & SiteFreq in ListText \\ \cline{2-4} 
+                  & \multirow{3}{*}{ListOl} & ListOlTermFreq & TermFreq in ListOl \\ 
+                  &                   &  ListOlPageFreq      & PageFreq in ListOl\\ 
+                  &                   &  ListOLSiteFre       & SiteFreq in List\\ \cline{2-4} 
+                  & \multirow{3}{*}{ListUl} & ListUlTermFreq  & TermFreq in ListUl \\ 
+                  &                   &  ListUlPageFreq       & PageFreq in ListUl \\ 
+                  &                   &  ListUlSiteFreq       & SiteFreq in ListUl \\ \cline{2-4} 
+                  & \multirow{3}{*}{ListSelect} & ListSelectTermFreq  & TermFreq in ListSelect \\ 
+                  &                   &  ListSelectPageFreq           & PageFreq in ListSelect \\ 
+                  &                   &  ListSelectSiteFreq           & SiteFreq in ListSelect \\ \cline{2-4} 
+                  & \multirow{3}{*}{ListTr} & ListTrTermFreq  & TermFreq in ListTr\\ 
+                  &                   &  ListTrPageFreq       & PageFreq in ListTr \\ 
+                  &                   &  ListTrSiteFreq       & SiteFreq in ListTr \\ \cline{2-4} 
+                  & \multirow{3}{*}{ListTd} & ListTdTermFreq  & TermFreq in ListTd \\ 
+                  &                   &  ListTdPageFreq       & PageFreq in ListTd \\ 
+                  &                   &  ListTdSiteFreq       & SiteFreq in ListTd \\ \hline
+\multicolumn{2}{|c|}{Term}                &  Length & number of words in the term \\ \hline
+\multicolumn{2}{|c|}{\multirow{2}{*}{Global corpus}}   & IDF & inverse document frequency \\ 
+\multicolumn{2}{|l|}{}                    &  ListIDF  & IDF in a candidate list collection \\  \hline
+\multicolumn{2}{|c|}{\multirow{2}{*}{Combination}}   & ContentTermFreq.IDF &  ContentTermFreq $\times$ IDF \\ 
+\multicolumn{2}{|l|}{}                    &  ListTermFreq.ListIDF & listTermFreq $\times$ ListIDF \\  \hline
+\end{tabular}
+\end{table}
+
+
+To capture how likely item $t$ is to be a coordinate terms (or an instance of a semantic class), we use features extracted from candidate lists (List) based on different patterns (ListText, ListOl, ListUl, ListSelect, ListTr, ListTd). For example, \textit{listSelectTermFreq} is the frequency of the list item in the candidate lists extracted based on the SELECT pattern. \textit{listTextPageFreq} is the number of the search result webpages that contains the list item in candidate lists extracted based on the lexical pattern from the webpages. Some list items occur frequently in candidate lists across different queries, such as \textit{home}, \textit{contact us} and \textit{privacy policy}. They are treated as stopwords, and removed from the candidate lists. We also use \textit{listIDF} to cope with this problem, in a similar way as IDF.  \textit{listIDF} is the IDF of a list item in a collection of candidate lists we extracted (see Section~\ref{sec:ie-data}). It is calculated in the same form as \textit{IDF}, as $listIDF(t)=\log{\frac{NL-NL_{t}+0.5}{NL_t+0.5}}$, where $NL$ is the total number of candidate lists in the collection,  $NL_t$ is the number of lists contain the list item $t$.
+
+
+\textbf{Item Pair Features}, $g(p_{i,j})$ in the graphical model, are used to capture how likely a pair of list items should be grouped into a query facet, given that the two list item both are facet terms. We design item pair features based on different types of similarity between the two list items,  listed in Table~\ref{tab:facet-pfeature}. One straightforward feature is to frequency count of the two list items occurring in a same candidate list (\textit{ListCooccur}). Another one is the difference in the length of the list item (\textit{LengthDiff}), which assumes that similar list item should be of similar length. 
+
+\begin{table}[h!]
+\centering
+\caption{Item pair features. $t_i$ and $t_j$ are an item pair.}
+\label{tab:facet-pfeature}
+\begin{tabular}{ |l|l| } \hline
+  Feature  & Description \\ \hline
+  LengthDiff  & Length difference, $|Length(t_i) - Length(t_j)|$ \\
+  ListCooccur & Number of candidate lists in which $t_i$, $t_j$ co-occur\\
+  TextContextSim & Similarity between text contexts\\
+  ListContextSim & Similarity between list contexts\\
 \hline
 \end{tabular}
 \end{table}
+
+
+Besides these straightforward features, item similarity can also be measured by their context similarity. One common context for a term is the text content surrounding the term~\cite{shi2010corpus}. The feature based on text content similarity is called \textit{textContextSim} in Table~\ref{tab:facet-pfeature}. We build the text context using surrounding words (within 25 words) of the list item in the search result webpages, and represent the text context as a vector of term frequency weights, then we use cosine similarity to calculate \textit{TextContextSim}. Another context we propose in this work is based on the candidate lists extracted, which we call list context. We use list items that appears together with the given list item in a same candidate lists as the list context. An example is given in Table~\ref{tab:facet-listcontext}. In the example, the list context for \concept{Delta} include list item \concept{AA} (twice), \concept{JetBlue} (twice), \concept{Southwest}, and the list context for \concept{United} include list item \concept{AA}, \concept{JetBlue}, \concept{Southwest}. 
+\begin{table}[ht!]
+\centering
+\caption{A list context example. $L1$, $L2$, $L3$ are three candidate lists. The list context for \concept{Delta} is marked by underline \underline{\textit{item}}, the list context for \concept{United} is marked by under-wave \uwave{\textit{item}}.}
+\label{tab:facet-listcontext}
+\begin{tabular}{|l|} \hline
+$L_1$: \underline{AA}, \textit{Delta}, \underline{JetBlue} \\
+$L_2$: \underline{AA}, \textit{Delta}, \underline{JetBlue},  \underline{Southwest}\\
+$L_3$: \uwave{AA}, \textit{United}, \uwave{JetBlue}, \uwave{Southwest}\\ 
+\hline
+\end{tabular}
+\end{table}
+Then we can calculate the similarity based on list context in the same way as \textit{TextContextSim} (\ie, using term frequency represent with cosine similar measure). This context similar feature is called \textit{ListContextSim}. \textit{ListContextSim} is to some extent similar to \textit{ListCooccur}, but one advantage of \textit{ListContextSim} is that even if two list items do not co-occur together in a candidate list, they may still have a high \textit{ListContextSim}. For the example in Table~\ref{tab:facet-listcontext}, \concept{Delta} and \concept{United} do not co-occur together in a candidate list, but their list contexts are very similar, and thus they obtain a high \textit{ListContextSim}.
+
 
 \subsection{Maximum Likelihood Parameter Estimation}
 \label{sec:facet-train}
