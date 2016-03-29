@@ -97,7 +97,7 @@ baggage allowance information for the economy class of Delta international fligh
 \centering
 \includegraphics[width=0.95\columnwidth]{figure/fws-example.png}
 %\includegraphics[scale=0.45]{figure/fws-example.png}
-\caption{An example case of Faceted Web Search: (1) the user issues a query; (2) the system returns search results; (3) the system provides facets for the query; (4) the user selects terms in the facets; (5) the system re-ranks this relevant document to the top according to the selected terms.}
+\caption{An example of Faceted Web Search: (1) the user issues a query; (2) the system returns search results; (3) the system provides facets for the query; (4) the user selects terms in the facets; (5) the system re-ranks this relevant document to the top according to the selected terms.}
 \label{fig:fws-example}
 \end{figure}
 
@@ -105,7 +105,7 @@ baggage allowance information for the economy class of Delta international fligh
 This thesis address three fundamental issues of Faceted Web Search, including facet generation, facet feedback, and evaluation, as described further as follows.
 
 \subsection{Facet Generation}
-Facet generation is to identify facets for navigation (corresponding to step 3 in Figure~\ref{fig:fws-example}). In conventional faceted search, facets are typically generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries. However, this approach is difficult to extend to the entire web due to the web's large and heterogeneous nature~\cite{teevan2008challenges}. We instead propose a query-dependent approach, which extracts facets for a query from its search results, providing a promising direction for solving the problem. 
+Facet generation is to identify facets for navigation (corresponding to step 3 in Figure~\ref{fig:fws-example}). In conventional faceted search, facets are generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries in most of the previous work~\cite{teevan2008challenges}. However, this approach is difficult to extend to the entire web due to the web's large and heterogeneous nature. We instead propose a query-dependent approach, which extracts facets for a query from its search results, providing a promising direction for solving the problem. 
 
 We call the extracted items ``query facets'', defined as a set of coordinate terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that explicitly represent one aspect (\eg, \concept{airlines}) of the query (\eg, \concept{baggage allowance}). The coordinate terms share a semantic relationship by being subsumed by a more general hypernym (\eg, \concept{AA}, \concept{Delt}, \concept{JetBlue} are subsumed by \concept{airlines}). More examples for query facets are shown in Table~\ref{tab:facetexample}. This definition of query facets corresponds to one-level taxonomies in faceted taxonomy, in which only information objects that belong to a same parent node are shown as a facet (Section~\ref{sec:bg-fws}). We leave generating facets as two- or more level taxonomies as future work.
 

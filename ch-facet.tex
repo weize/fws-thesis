@@ -1,16 +1,15 @@
 \chapter{Query Facet Extraction}
 \label{ch:facet}
 \section{Introduction}
-In conventional faceted search, facets are typically generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries. However, this approach is difficult to extend to faceted web search due to the large and heterogeneous nature of the web: because the web is very large, it is
+In conventional faceted search, facets are generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries in most of the previous work~\cite{teevan2008challenges}. However, this approach is difficult to extend to faceted web search due to the large and heterogeneous nature of the web: because the web is very large, it is
 difficult to assign quality facets to every document in the collection and to retrieve the full set of search results and their associated facets at query time; and because the web is heterogeneous, it is difficult to apply the same facets to every search result or every query.
 
 To cope with this challenge, in this chapter, we propose an alternative solution, called \textbf{query facet extraction}~\cite{kong2013extracting}, which extracts facets for queries from their web search results. For example, when users search with the query \concept{baggage allowance}, the system might extract query facets like airlines, \{\concept{Delta}, \concept{JetBlue}, \concept{AA}, ...\}, travel classes, \{\concept{first}, \concept{business}, \concept{economy}\}, and flight types, \{\concept{international}, \concept{domestic}\}. Changing from a global approach that generates facets in advance for an entire corpus to a query-based approach that extract facets from the top-ranked search results, query facet extraction appears to be a promising direction for solving the open-domain faceted search problem -- it not only makes the facet generation problem easier, but also addresses the facet recommendation problem at the same time.
 
 
-We define a \textbf{query facet} as a set of coordinate terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that explicitly represent one aspect (\eg, \concept{airlines}) of its query (\eg, \concept{baggage allowance}). The coordinate terms share a semantic relationship by being grouped under a more general hypernym (``is a'' relationship, \eg, \concept{AA}, \concept{Delta}, \concept{JetBlue} are all \concept{airlines}). 
+We define a \textbf{query facet} as a set of coordinate terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that explicitly represent one aspect (\eg, \concept{airlines}) of its query (\eg, \concept{baggage allowance}). The coordinate terms share a semantic relationship by being subsumed by a more general hypernym (\eg, \concept{AA}, \concept{Delta}, \concept{JetBlue} are subsumed by \concept{airlines}). 
 % Terms in query facet are generally called \textbf{facet terms}. When it is clear from context, we will simply use ``facet'' for ``query facet'', and ``term'' for ``facet term'' for convenience. Based on these definitions, \textbf{query facet extraction} is to extract query facets for a given query from certain resources, and in our case the top search results for that query.
-In Table~\ref{tab:facet-facetexample}, we show query facets for three example queries. We will using the first query \concept{Mars landing} as an example for explanation. The first query facet, \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}, includes different Mars rovers. The second query facet, \{\textit{USA}, \textit{UK}, \textit{Soviet Union}\}, includes countries relevant to Mars landings. These are both facets where the terms are instances of the same semantic class. 
-Somewhat differently, the last facet, \{\textit{video}, \textit{pictures}, \textit{news}\}, includes labels for different query subtopics. These labels can be viewed as instances of a special semantic class, the subtopics of the query \textit{mars landing}.\todo{media facts?}
+In Table~\ref{tab:facet-facetexample}, we show query facets for three example queries. We will using the first query \concept{mars landing} as an example for explanation. The first query facet, \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}, includes different Mars rovers. The second query facet, \{\textit{USA}, \textit{UK}, \textit{Soviet Union}\}, includes countries relevant to Mars landings. The last facet, \{\textit{video}, \textit{pictures}, \textit{news}\}, includes different types of media. We can see that the terms in each facet are instances of the same semantic class.
 \begin{table}[H]
 \centering
 \caption{Query facet examples for three queries}
@@ -44,11 +43,11 @@ The rest of this chapter is organized as follows. We first define the task of qu
 \section{Task Description}
 \label{sec:facet-task}
 \subsection{Query Facet}
-To differentiate our work with facets in conventional faceted search, we call typically facets for a particular query ``query facets''. A query facet is a set of coordinate terms -- i.e., terms that share a semantic relationship by being subsumed by a more general hypernym, and they succinctly represent different options in the same category that a user can select to refine the issued query. This definition of query facets corresponds to a one-level faceted taxonomy, in which only information objects that belong to a same parent node are shown as a query facet (Section~\ref{sec:bg-fws}). We leave generating query facets as two or more level taxonomies to future work.
+To differentiate our work with facets in conventional faceted search, we call typically facets for a particular query ``query facets''. A query facet is a set of coordinate terms -- i.e., terms that share a semantic relationship by being subsumed by a more general hypernym, and they succinctly represent different options in the same category that a user can select to refine the issued query. 
 
-\subsection{Facet Term}
-We call the terms inside facets ``facet terms'', which can be single words (e.g. \concept{international}, \concept{domestic} in Table~\ref{tab:facet-facetexample}) or phrases (e.g. \concept{first class}, \concept{business class} in Table~\ref{tab:facet-facetexample}). 
-These facet terms can be instances of a semantic class, for example \concept{Curiosity}, \concept{Opportunity}, \concept{Spirit} are all Mars rovers. They can be labels for query subtopics\todo{facet and subtopics}, such as \concept{video}, \concept{pictures}, \concept{news} for the query \concept{mars landing}. Facet terms of a query succinctly represent different options in the same category that a user can select to refine the issued query. 
+We call these terms inside a query facet ``facet terms'', which can be single words (e.g. \concept{international}, \concept{domestic} in Table~\ref{tab:facet-facetexample}) or phrases (e.g. \concept{first class}, \concept{business class} in Table~\ref{tab:facet-facetexample}).
+
+This definition of query facets corresponds to a one-level faceted taxonomy, in which only information objects that belong to a same parent node are shown as a query facet (Section~\ref{sec:bg-fws}). We leave generating query facets as two or more level taxonomies to future work.
 
 When it is clear from context, we will simply use ``facet'' for ``query facet'', and ``term'' for ``facet term'' for convenience.
 
@@ -58,7 +57,7 @@ Based on the definitions above, query facet extraction is to extract query facet
 \section{Solution Framework}
 \label{sec:facet-framework}
 % intuition and assumptions
-The idea for solving query facet extraction is to leverage coordinate terms found in the web search results to build high-quality query facets. These coordinate terms can be found by looking into the list structures in webpages (\eg, ordered lists, drop-down lists) or analyzing the linguistic list structures in the textual content (\eg, \concept{airlines such as \underline{AA}, \underline{Delta}, \underline{JetBlue}}).
+The idea for solving query facet extraction is to leverage coordinate terms found in the web search results to build high-quality query facets. These coordinate terms can be found by looking into the list structures in webpages (\eg, ordered lists, drop-down lists) or analyzing the linguistic list structures in the textual content (\eg, \concept{The airlines servicing this airport are \underline{AA}, \underline{Delta}, and \underline{JetBlue}}).
 Previous work in semantic class extraction~\cite{hearst1992automatic,pasca2004acquisition,kozareva2008semantic,shi2010corpus} has studied patterns for extracting these structures. 
 
 This idea is based on the following two assumptions:
@@ -84,7 +83,7 @@ We will describe candidate extraction and facet refining in more detail in the n
 
 \section{Candidate Extraction}
 \label{sec:facet-candidate}
-Following \citet{dou2011finding}, we use a pattern-based semantic class extraction approach~\cite{shi2010corpus} to extract lists of coordinate terms from search results as facet candidates. In pattern-based semantic class extraction, instances of a semantic class (\eg, instance \concept{AA}, \concept{Delta}, \concept{JetBlue} for class \concept{airlines}) are extracted from textual or webpage corpus based on lexical patterns~\cite{hearst1992automatic,pasca2004acquisition}, HTML patterns~\cite{shinzato2005simple}, or both~\cite{shi2008pattern,zhang2009employing}. For example, the pattern ``\textit{NP} such as \textit{NP}, \textit{NP}, ..., and \textit{NP}'', where \concept{NP} stands for a noun phrase, can be used to extract coordinate terms (as instances) and their hypernyms (as the semantic class) from text. Besides lexical patterns, HTML patterns are often used on HTML documents to extract coordinate terms from some HTML structures, like unordered lists (\ie, <UL>), drop-down lists (\ie, <SELECT>) and 
+Following \citet{dou2011finding}, we use a pattern-based semantic class extraction approach~\cite{shi2010corpus} to extract lists of coordinate terms from search results as facet candidates. In pattern-based semantic class extraction, instances of a semantic class (\eg, instance \concept{AA}, \concept{Delta}, \concept{JetBlue} for class \concept{airlines}) are extracted from textual or webpage corpus based on lexical patterns~\cite{hearst1992automatic,pasca2004acquisition}, HTML patterns~\cite{shinzato2005simple}, or both~\cite{shi2008pattern,zhang2009employing}. For example, the pattern ``\textit{NP}, \textit{NP}, ..., and \textit{NP}'', where \concept{NP} stands for a noun phrase, can be used to extract coordinate terms (as instances) from text. Besides lexical patterns, HTML patterns are often used on HTML documents to extract coordinate terms from some HTML structures, like unordered lists (\ie, <UL>), drop-down lists (\ie, <SELECT>) and 
 tables (\ie, <TABLE>). The coordinate terms extracted from each patterns form candidates for query facets, which we call \textbf{candidate list}.
 
 We apply both of the two types of patterns on the search results to extract candidate lists. These extraction patterns are summarized in Table~\ref{tab:facet-patterns}. We describe them in detail in the following two sections.
@@ -109,12 +108,8 @@ We use the following lexical pattern:
 \begin{center}
 \textit{item}, \{,\textit{item}$\}^*$ \{,\} (and|or) \{other\} \textit{item} 
 \end{center}
-\todo{James' comments}We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the following sentence,
-\begin{center}
-\concept{... Mars rovers such as Curiosity, Opportunity and Spirit.}
-\end{center}
-
-For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
+\todo{James' comments}We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the sentence, \concept{The airlines servicing this airport are AA, Delta, and JetBlue
+}, we can extract the candidate list \{\concept{AA}, \concept{Delta}, \concept{JetBlue}\} using the lexical pattern. For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
 
 \subsection{HTML Patterns}
 We also extract candidate lists based on several HTML patterns that target list structures in HTML webpages, including drop-down lists, ordered lists, unordered lists and tables. Table~\ref{tab:facet-html} shows some HTML code examples for these list structures.
@@ -349,7 +344,7 @@ query and quality as coordinate terms, a facet term should also be succinct. Thu
 \end{table}
 
 
-To capture how likely item $t$ is to be a coordinate terms (or an instance of a semantic class), we use features extracted from candidate lists (List) based on different patterns (ListText, ListOl, ListUl, ListSelect, ListTr, ListTd). For example, \textit{listSelectTermFreq} is the frequency of the list item in the candidate lists extracted based on the SELECT pattern. \textit{listTextPageFreq} is the number of the search result webpages that contains the list item in candidate lists extracted based on the lexical pattern from the webpages. Some list items occur frequently in candidate lists across different queries, such as \textit{home}, \textit{contact us} and \textit{privacy policy}. They are treated as stopwords, and removed from the candidate lists. We also use \textit{listIDF} to cope with this problem, in a similar way as IDF.  \textit{listIDF} is the IDF of a list item in a collection of candidate lists we extracted (see Section~\ref{sec:ie-data}). It is calculated in the same form as \textit{IDF}, 
+To capture how likely item $t$ is to be a coordinate term (or an instance of a semantic class), we use features extracted from candidate lists (List) based on different patterns (ListText, ListOl, ListUl, ListSelect, ListTr, ListTd). For example, \textit{listSelectTermFreq} is the frequency of the list item in the candidate lists extracted based on the SELECT pattern. \textit{listTextPageFreq} is the number of the search result webpages that contains the list item in candidate lists extracted based on the lexical pattern from the webpages. Some list items occur frequently in candidate lists across different queries, such as \textit{home}, \textit{contact us} and \textit{privacy policy}. They are treated as stopwords, and removed from the candidate lists. We also use \textit{listIDF} to cope with this problem, in a similar way as IDF.  \textit{listIDF} is the IDF of a list item in a collection of candidate lists we extracted (see Section~\ref{sec:ie-data}). It is calculated in the same form as \textit{IDF}, 
 as $listIDF(t)=\log{\frac{NL-NL_{t}+0.5}{NL_t+0.5}}$, where $NL$ is the total number of candidate lists in the collection,  $NL_t$ is the number of lists contain the list item $t$.
 
 
