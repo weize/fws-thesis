@@ -108,32 +108,6 @@ For QFI, we tune the weight threshold for facet terms, and the diameter threshol
 \textbf{Baseline Retrieval Models and Facet Feedback Models}. We use SDM as the baseline retrieval model with 0.8, 0.15, 0.05 weights for word unigrams, adjacent word bigrams, and adjacent word proximity respectively. SDM is also used as the initial retrieval model for facet generation and facet feedback. We compare different facet feedback models to SDM, including AND, OR, A+O for the Boolean filtering models, as well as ST and SF for the soft ranking models. $\lambda$ in ST/SF is set to be 0.8. Dirichlet smoothing $\mu=1500$ is used for both SDM and ST/SF. We also used other baselines including RM3~\cite{abdul2004umass,lavrenko2001relevance}, a pseudo relevance feedback model, tuned on MAP, and xQuAD~\cite{santos2010exploiting}, a diversification model, tuned on $\alpha$-NDCG~\cite{clarke2008novelty}.
 %PM-2~\cite{dang2013term} and
 
-\subsection{Comparison to Baseline Retrieval Models}
-We first compare FWS with other baseline retrieval models in Table~\ref{fig:cmp-other}. QFI is used as the FWS system here, with SF as the facet feedback model. Annotator feedback terms are used, which represents a real case (not oracle) of FWS application. 
-%We also include results for using annotator facets, to see the performance in an ideal case.
-In the table, QFI:10 and QFI:50 are QFI runs allowed 10 and 50 time units for feedback respectively. 
-
-First, the table shows that using annotator feedback, QFI can improve ranking over the initial retrieval model, SDM. QFI also obtains better results than RM3, across all the metrics. It is also better than xQuAD for most metrics. The observations testify to the potential of FWS in assisting search. Last, when allowed more time, the results are further improved as shown by the change from QFI:10 to QFI:50.
-
-\begin{table}[H]
-\centering
-\caption{Retrieval effectiveness comparison with baselines. QFI:10 and QFI:50 are QFI runs allowed 10 and 50 time units for feedback respectively. Statistically significant differences are marked using the first letter of the retrieval model name under comparison.}
-%ANNOTATOR:10 is using annotator facets, allowed 10 time units. 
-\label{fig:cmp-other}
-\begin{tabular}{|c|l|l|l|} \hline
-Model & MAP & MRR & nDCG@10\\ \hline
-SDM & 0.1854 & 0.3295 & 0.1997\\ \hline
-RM3 & 0.1886 & 0.3124 & 0.2010\\ \hline
-xQuAD & 0.1822 & $0.3463^{r}$ & 0.2191\\ \hline
-QFI:10 & $0.1918^{s}_{x}$ & $0.3476^{s,r}$ & $0.2145^{s,r}$\\ \hline
-%QFI:20 & $0.1994^{s,p}$ & $0.3588^{s,p}$ & $0.2278^{s,p}$\\ \hline 
-QFI:50 & $0.2044^{s,r}_{x}$ & $0.3736^{s,r}$ & $0.2357^{s,r}$\\ \hline 
-
-%\hline ANNOTATOR:10 & $0.2003^{s,r}_{x}$ & $0.3671^{s,r}$ & $0.2293^{s,r}$\\ \hline
-%ANNOTATOR:20 & $0.2068^{s,r}$ & $0.3744^{s,r}$ & $0.2396^{s,r}$\\ \hline
-\end{tabular}
-\end{table}
-
 \subsection{Oracle and Annotator Feedback}
 %We first compare oracle and annotator feedback, which are the two types of feedback used for simulating user feedback. 
 In Figure~\ref{fig:feedback}, we compare the effectiveness of oracle and annotator feedback. It shows how ranking performance changes as time cost increases, when incrementally including terms from the two types of feedback as feedback terms. The time cost is estimated by the user model described in Section~\ref{sec:user-model}. MAP is calculated with respect to the subtopic level relevance, since we are evaluating the case where the user is looking for the subtopic information. MAP value is averaged by macro-averaging -- averaging for subtopics within the same query first, and then across all the queries. \footnote{We also measured micro-averaging, but the results are similar.} When time is zero, no feedback terms are used, which is then just the result for the initial ranking from SDM.
@@ -142,7 +116,7 @@ In Figure~\ref{fig:feedback}, we compare the effectiveness of oracle and annotat
 \centering
 \caption{MAP change over time for oracle and annotator feedback, based on annotator facets and SF feedback model. oracle-s and oracle-b are the oracle feedback based on the Boolean filtering model and soft ranking model respectively.}
 \label{fig:feedback}
-\epsfig{file=figure/cmp-feedback-annotator-ffs-MAP.eps,scale=0.6}
+\epsfig{file=figure/cmp-feedback-annotator-ffs-MAP.eps,scale=1}
 \end{figure}
 
 In Figure~\ref{fig:feedback}, MAP increases from the SDM baseline result for both oracle and facet feedback, with the oracle ones shown to be far more effective. This shows that annotators are able to identify some useful feedback terms, but are not as effective as the ideal case: it seems people have a hard time knowing which terms are most likely to be successful. We further compare the feedback terms selected in oracle and annotator feedback in Table~\ref{tab:feedback}, which also supports this claim.
@@ -184,7 +158,7 @@ Intrinsic evaluation may not reflect the utility of facets in assisting search. 
 \centering
 \caption{MAP change over time for different facets generation models, based on annotator feedback and SF feedback model.}
 \label{fig:cmp-facet}
-\epsfig{file=figure/cmp-facet-annotator-ffs-MAP.eps,scale=0.8}
+\epsfig{file=figure/cmp-facet-annotator-ffs-MAP.eps,scale=1}
 \end{figure}
 
 First, Figure~\ref{fig:cmp-facet} shows all models are able to improve ranking from the baseline, which testifies to the potential of FWS. However, the automatically generated facets are less effective than annotator facets. MAP for annotator facets reaches 0.2 by 10 time units, while the models need much more time, ranging from 27 to 47. Second, QFI is more effective than other models over the entire time span. This is consistent with the intrinsic evaluation. Third, the comparison results for other models are less clear. QFJ and QDM are better than pLSA and LDA before 20 time units, but MAP for pLSA and LDA increases much faster afterwards, and ends at a value similar to QFJ. Comparing these results with Table~\ref{tab:intrinsic}, we find intrinsic metrics do not always reflect utility based on extrinsic evaluation, though the generally better performance of QFI is clear in both.
@@ -192,7 +166,7 @@ First, Figure~\ref{fig:cmp-facet} shows all models are able to improve ranking f
 Another way to compare is to see how many terms in the presented facets are selected by annotators, as shown in Figure~\ref{fig:cmp-facet-term}.
 \begin{figure}[H]
 \centering
-\epsfig{file=figure/cmp-facet-annotator-term.eps,scale=0.8}
+\epsfig{file=figure/cmp-facet-annotator-term.eps,scale=1}
 \caption{Number of feedback terms selected over time on facets generated by different models, based on annotator feedback.}
 \label{fig:cmp-facet-term}
 \end{figure}
@@ -201,7 +175,7 @@ The figure shows that with annotator facets a (simulated) user needs less time f
 If we switch to using the oracle feedback facets, the difference between different facet generation models and annotator facets are no longer that big, as shown in Figure~\ref{fig:cmp-facet-oracle}. Annotator facets are better at the beginning, but the corresponding MAP stops growing at around 20 time units. We find this is due to there not being so many facets available in the annotator facets. The number of terms and facets presented to users will affect this evaluation. In the plot, when there is not a sufficient supply of facets at some time cost, the results from a smaller time cost are used. That is, if the user runs out of facet terms to consider, performance is stuck where it last left off. 
 \begin{figure}[H]
 \centering
-\epsfig{file=figure/cmp-facet-oracle-ffs-MAP.eps,scale=0.8}
+\epsfig{file=figure/cmp-facet-oracle-ffs-MAP.eps,scale=1}
 \caption{MAP change over time for different facets generation models, based on oracle feedback and SF feedback model.}
 \label{fig:cmp-facet-oracle}
 \end{figure}
@@ -213,20 +187,64 @@ To validate the comparison in Figure~\ref{fig:cmp-facet} and~\ref{fig:cmp-facet-
 \centering
 \caption{Accumulated number of facet terms in top facets generated from different facets generation models.}
 \label{fig:cmp-facet-cum-term}
-\epsfig{file=figure/cmp-facet-cumTerm.eps,scale=0.8}
+\epsfig{file=figure/cmp-facet-cumTerm.eps,scale=1}
 \end{figure}
 
 \subsection{Comparing Facet Feedback Models}
 We compare different facet feedback models in Figure~\ref{sec:cmp-exp-model}. It shows soft ranking models are more effective than Boolean filter models. AND is too aggressive, which hurts the ranking performance as more and more feedback terms are used. The other two Boolean filtering models, OR and A+O, are similar at the beginning. That is because in the beginning there is only one feedback facet, in which case OR and A+O will be equivalent. As more facet terms are selected, A+O performance decreases. For the two soft ranking model, SF and ST are very close, with SF slightly better as time progresses. 
 \begin{figure}[H]
 \centering
-\epsfig{file=figure/cmp-expansion-annotator-annotator-MAP.eps,scale=0.8}
+\epsfig{file=figure/cmp-expansion-annotator-annotator-MAP.eps,scale=1}
 \caption{MAP change over time for different feedback models, based on annotator facets and annotator feedback.}
 \label{sec:cmp-exp-model}
 \end{figure}
 This comparison suggests that Boolean filter models, AND and A+O, are too strict for FWS, and a soft ranking model is more effective for FWS. This situation is probably because in FWS the mapping between facet term and document is incomplete; a document that does not contain the exact facet term may also be relevant. 
 
+\subsection{Comparison to Baseline Retrieval Models}
+\label{sec:ex-rms}
+We compare FWS with other baseline retrieval models in Table~\ref{fig:cmp-other}. QFI is used as the FWS system here, with SF as the facet feedback model. Annotator feedback terms are used, which represents a real case (not oracle) of FWS application. 
+%We also include results for using annotator facets, to see the performance in an ideal case.
+In the table, FWS:10 and FWS:50 are QFI runs allowed 10 and 50 time units for feedback respectively. 
 
+First, the table shows that using annotator feedback, FWS can improve ranking over the initial retrieval model, SDM. FWS also obtains better results than RM3, across all the metrics. It is also better than xQuAD for most metrics. The observations testify to the potential of FWS in assisting search. Last, when allowed more time, the results are further improved as shown by the change from FWS:10 to FWS:50.
+
+\begin{table}[H]
+\centering
+\caption{Retrieval effectiveness comparison with baselines. FWS:10 and FWS:50 are QFI runs allowed 10 and 50 time units for feedback respectively. Statistically significant differences are marked using the first letter of the retrieval model name under comparison.}
+%ANNOTATOR:10 is using annotator facets, allowed 10 time units. 
+\label{fig:cmp-other}
+\begin{tabular}{|c|l|l|l|} \hline
+Model & MAP & MRR & nDCG@10\\ \hline
+SDM & 0.1854 & 0.3295 & 0.1997\\ \hline
+RM3 & 0.1886 & 0.3124 & 0.2010\\ \hline
+xQuAD & 0.1822 & $0.3463^{r}$ & 0.2191\\ \hline
+FWS:10 & $0.1918^{s}_{x}$ & $0.3476^{s,r}$ & $0.2145^{s,r}$\\ \hline
+%QFI:20 & $0.1994^{s,p}$ & $0.3588^{s,p}$ & $0.2278^{s,p}$\\ \hline 
+FWS:50 & $0.2044^{s,r}_{x}$ & $0.3736^{s,r}$ & $0.2357^{s,r}$\\ \hline 
+
+%\hline ANNOTATOR:10 & $0.2003^{s,r}_{x}$ & $0.3671^{s,r}$ & $0.2293^{s,r}$\\ \hline
+%ANNOTATOR:20 & $0.2068^{s,r}$ & $0.3744^{s,r}$ & $0.2396^{s,r}$\\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Comparison to a Retrieval Model with User Feedback}
+Section~\ref{sec:ex-rms} shows that, using user feedback on facets, FWS can provide better ranking than other retrieval models that do not incorporate explicit user feedback. In this section, we want to investigate if FWS is more effective than other retrieval models that incorporate user feedback. For this, we compare FWS with a term relevance feedback model~\cite{koenemann1996case,tan2007term}.
+
+The term relevance feedback model we used is based on RM3~\cite{abdul2004umass,lavrenko2001relevance}, and thus denoted as RM3I (``I'' stands for ``interactive''). RM3I shows the expansion terms from RM3 (terms with high probabilities in the top ranked documents) to a user (or an annotator in our simulation). Then RM3I expands the query only with terms selected by the user in the original RM3 feedback model.
+
+FWS and RM3I are similar in that both of them generate terms for users to select, and then use the selected terms as feedback for re-ranking.  
+FWS and RM3I are different from two aspects. First, the terms generated can be different. FWS generates terms based on query facet extraction. RM3I generates terms based on RM3, a pseudo relevance feedback model. Second, the presentation of terms are different. RM3I present the terms as a flat list for the user. FWS groups terms into facets. The facet interface essentially provides a skip list of these terms for users. According to our user model (Section~\ref{sec:user-model}), the user can skip an entire facet if the user finds the facet irrelevant. This saves the user a lot of time in considering the terms inside irrelevant facets.
+
+Our experiment is set up as follows. For term generation, we run RM3 for RM3I with different number of pseudo relevant documents, and report the best result, which is obtained by using top 100 documents (this is also the same setting used in FWS). For FWS, we report results for query facets generated by QFI. For user feedback, same as before, we use annotator feedback terms for both models. For feedback models, FWS uses the SF facet feedback model, RMi3 (as described above) uses the original RM3 model, but only with the selected terms for expansion. For both FWS and RM3I, the weights for the original query and expansion are set to 0.8 and 0.2 respectively. For estimating the time in giving user feedback, we use the user model described in Section~\ref{sec:user-model}. So time cost for FWS is estimated as before. Time cost for RM3I is estimated by assuming the list of feedback terms RM3I presented as a single facet.
+
+We report the results in Table~\ref{fig:ex-rm3i}, which shows how the ranking performance changes in terms of MAP when users invest more and more time in giving feedback for FWS and RM3I. We have two observations here. First, we can see that initially (time < 10 units) RM3I outperforms FWS. This indicates that, compared to FWS, RM3I could rank feedback terms that are more effective in the top of its term list. This observation implies that FWS might be improved by considering similar term ranking models/features as in RM3I. Second, we can see that when users spend more time and scan more terms/facets (time > 10 units), FWS outperforms RM3I. This can be explained by the skip list structure in FWS. When users are looking for more terms to select, the skip list structure in FWS helps users to skip irrelevant terms (in the irrelevant facets), saving them time to consider each of the irrelevant terms one by one. Thus, FWS can achieve similar re-ranking performance in a much shorter time comparing to RM3I.
+ 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\columnwidth]{figure/cmp-prm-annotator-ffs-MAP.eps}
+\caption{MAP change over time for FWS and RM3I (RM3 with user feedback terms). Results are based on annotator feedback terms. FWS results are based on QFI.}
+\label{fig:ex-rm3i}
+\end{figure}
 
 \subsection{Examples}
 In this section, we use some system generated facets as examples, to show how FWS can assist search. We find FWS can be helpful in exploratory search. 
@@ -238,5 +256,4 @@ For example, for the query ``cheap internet'', the facets generated by QDM inclu
 In this chapter, we developed an extrinsic evaluation method for Faceted Web Search. The extrinsic evaluation method directly measures the utility in search instead of comparing system/annotator facets as in intrinsic evaluation. We described a way to build reusable test collection for the extrinsic evaluation, and make our collected data set publicly available\footnote{See http://ciir.cs.umass.edu/downloads}.
 
 We also investigated different facet generation and facet feedback models based on the extrinsic evaluation method.
-Our experiments show, by using facet feedback from users, Faceted Web Search is able to assist the search task and significantly improve ranking performance.
-Comparing intrinsic evaluation and extrinsic evaluation on different facet generation models, we find that the intrinsic evaluation does not always reflect system utility in real application. Comparing different facet feedback models, we find that the Boolean filtering models, which are widely used in conventional faceted search, are too strict in Faceted Web Search, and less effective than soft ranking models.
+Our experiments show, by using facet feedback from users, Faceted Web Search is able to assist the search task and significantly improve ranking performance. Our experiments also show that the skip list structure in the facet interface helps users save time in considering feedback terms in irrelevant facets. Comparing intrinsic evaluation and extrinsic evaluation on different facet generation models, we find that the intrinsic evaluation does not always reflect system utility in real application. Comparing different facet feedback models, we find that the Boolean filtering models, which are widely used in conventional faceted search, are too strict in Faceted Web Search, and less effective than soft ranking models.
