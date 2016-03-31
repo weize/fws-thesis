@@ -1,6 +1,19 @@
 \usepackage{xspace}
 \usepackage{amsthm}
 
+\newenvironment{mydedication}
+  {\clearpage           % we want a new page
+   \thispagestyle{empty}% no header and footer
+   \vspace*{\stretch{2}}% some space at the top 
+   \itshape             % the text is in italics
+   \centering%\raggedleft          % flush to the right margin
+  }
+  {\par % end the paragraph
+   \vspace{\stretch{3}} % space at bottom is three times that at the top
+   \clearpage           % finish off the page
+  }
+
+
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 [section]
