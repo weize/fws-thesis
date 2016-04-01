@@ -468,62 +468,65 @@ Therefore, we propose two algorithms, \textbf{QFI} and \textbf{QFJ}, to approxim
 
 \todo{add proof for NP-hardness}
 \subsubsection{QFI}
-QFI approximates the results by predicting whether a list item is a facet term and whether two list items should be grouped in a query facet independently, which is accomplished in two phases.
-In the first phase, QFI selects a set of list items as facet terms according to $P(y_i|t_i)$.
+QFI (Query Faceting Independent) approximates the results by predicting whether a list item is a facet term and whether two list items should be grouped in a query facet independently, which is accomplished in two phases.
+In the first phase, QFI selects a set of list items as facet terms $T_\mathcal{F}$ according to $P(y_i|t_i)$.
 In this way, the algorithm predicts whether a list item $t_i$ is a facet term independently, ignoring the dependences between $y_i$ and its connected variables in $Z$.
 In our implementation, we simply select list items $t_i$ with  $P(t_i)> w_{min}$ as facet terms. (For convenience, we use $P(t_i)$ to denote $P(y_i=1|t_i)$.)
-In the second phase, the algorithm clusters the facet terms $T_\mathcal{F}$ selected in the first phase into query facets, according to $P(t_i,t_j)$. ($P(t_i, t_j)$ is used to denote $P(z_{i,j}=1|p_{i,j},y_i=1,y_j=1)$).
-Many clustering algorithm can be applied here, using $P(t_i,t_j)$ as the distance measure.
-For our implementation, we use a cluster algorithm based on WQT~\cite{dou2011finding}, because it considers the importance of nodes while clustering.
-We use $P(t_i)$ as the measure for facet term importance, and $d_t(t_i,t_j)=1-P(t_i, t_j)$ as the distance measure for facet terms. The distance between a cluster and a facet term is computed using complete linkage distance, $d_f(F,t)=max_{t' \in F}{d(t, t')}$, and the diameter of a cluster can be calculated as $dia(F)=\max_{t_i,t_j\in F}{d_t(t_i,t_j)}$. The algorithm is summarized in Algorithm~\ref{alg:qfi}. It processes the facet terms in decreasing order of $P(t)$. For each facet term remaining in the pool, it builds a cluster by iteratively including the facet term that is closest to the cluster, until the diameter of the cluster surpasses the threshold $d_{max}$. \todo{re-write the algorithm}
+In the second phase, the algorithm clusters the facet terms $T_\mathcal{F}$ selected in the first phase into query facets, according to $P(t_i,t_j)$, where $P(t_i, t_j)$ is used to denote $P(z_{i,j}=1|p_{i,j},y_i=1,y_j=1)$. Using $P(t_i,t_j)$ as the distance measure, many clustering algorithm can be applied here.
+For our implementation, we use a cluster algorithm based on WQT (Quality Threshold with Weighted items)~\cite{dou2011finding}, because it considers the importance of terms while clustering.
+We use $P(t_i)$ as the measure for facet term importance, and $dist_t(t_i,t_j)=1-P(t_i, t_j)$ as the distance measure for facet terms. The distance between a cluster and a facet term is computed using complete linkage distance, $dist_f(F,t)=max_{t' \in F}{d_t(t, t')}$, and the diameter of a cluster can be calculated as $dia(F)=\max_{t_i,t_j\in F}{dist_t(t_i,t_j)}$. 
+
+Algorithm QFI is shown in Algorithm~\ref{alg:qfi}. It takes the thresholds for term probability $w_{min}$ and cluster diameter $dia_{max}$ as inputs, as well as measure functions for term importance $P(t)$, distance $dist_f(F,t)$ and cluster diameter $dia(F)$. First, it selects facet terms by thresholding $P(t)$ (Line~\ref{alg:qfi-term}). Then it initializes the facet term pool to be clustered (Line~\ref{alg:qfi-pool}), and sets the return result as an empty set (Line~\ref{alg:qfi-fempty}). After that, it processes the facet terms in decreasing order of $P(t)$, and builds a cluster for each of them (Line~\ref{alg:qfi-while1} to \ref{alg:qfi-while1-e}). For each facet term, it builds a cluster by iteratively adding the facet term that is closest to the cluster (Line~\ref{alg:qfi-closest}), until the diameter of the cluster surpasses the threshold $dia_{max}$ (Line~\ref{alg:qfi-dia}). Last, clusters are collected (Line~\ref{alg:qfi-collect}) and returned (Line~\ref{alg:qfi-return}).
+
 \begin{algorithm}[ht!]
- \caption{WQT for clustering facet term used in QFI}
+ \caption{QFI}
 \label{alg:qfi}
 \begin{algorithmic}[1]
-  \Require $T_{\mathcal{F}}, P(t), d_f(F,t), dia(F), d_{max}$
-  \Ensure $\mathcal{F}=\{F\}$
-  \State $T_{pool} \leftarrow \mathcal{F}$
-  \Repeat
-    \State $t \leftarrow \arg\max_{t\in T_{pool}}{P(t)}$
+  \Require $w_{min}, dia_{max}, P(t), dist_f(F,t), dia(F)$
+  \Ensure $\mathcal{F}$
+  \State $T_\mathcal{F} \leftarrow \{t\;|\;P(t)\!>\!w_{min}\}$ \label{alg:qfi-term}
+  \State $T_{pool} \leftarrow T_\mathcal{F}$ \label{alg:qfi-pool}
+  \State $\mathcal{F} \leftarrow \emptyset$ \label{alg:qfi-fempty}
+  \While{$T_{pool} \neq \emptyset$} \label{alg:qfi-while1}
+    \State $t \leftarrow \arg\!\max_{t\in T_{pool}}{P(t)}$ 
     \State $F \leftarrow \{t\}$
-    \State iteratively include facet term $t' \in T_{pool}$ that is closest to $F$, according to $d_f(F,t')$, until the diameter of the cluster, $dia(F)$, surpasses the threshold $d_{max}$.
-    \State $\mathcal{F} \leftarrow \mathcal{F} \cup \{F\}$, $T_{pool} \leftarrow T_{pool} - F$
-  \Until $T_{pool}$ is empty
-  \State \Return $\mathcal{F}$
+    \State $T_{pool}\leftarrow {T_{pool}}\!-\!\{t\}$
+    \While{$T_{pool} \neq \emptyset$}
+      \State $t' \leftarrow \arg\!\min_{t'\in T_{pool}}{dist_f(F,t')}$ \label{alg:qfi-closest}
+      \If{$dia(F \cup \{t'\}) > dia_{max}$} \label{alg:qfi-dia}
+	\State \textbf{break}
+      \EndIf
+      \State $F \leftarrow F \cup \{t'\}$
+      \State $T_{pool}\leftarrow {T_{pool}}\!-\!\{t'\}$
+    \EndWhile
+    \State $\mathcal{F} \leftarrow \mathcal{F} \cup \{F\}$ \label{alg:qfi-collect}
+  \EndWhile \label{alg:qfi-while1-e}
+  \State \Return $\mathcal{F}$ \label{alg:qfi-return}
 \end{algorithmic}
 \end{algorithm}
 
+QFI contains two parameters $w_{min}$, $dia_{max}$. They can be tuned for optimizing a given performance measure. QFI is also efficient. The dominant procedure for time complexity is the clustering part (Line~\ref{alg:qfi-while1} to ~\ref{alg:qfi-while1-e}). In clustering, each facet term is considered only once for forming a cluster or being added to a cluster. When considering adding a facet term to a cluster, it takes $O(m)$ time to calculate the distance $dist_f(F,t)$, where $m$ is the number of facet terms in the $F$. $m$ is bounded by the total number of facet terms selected, $n$. Therefore, overall QFI takes $O(n^2)$ time.
 
 \subsubsection{QFJ}
 QFI finds query facets based on the graphical model by performing inference of $y_i$ and $z_{i,j}$ independently.
-The second algorithm, QFJ, instead tries to perform joint inference by approximately maximizing our target $l(\mathcal{F})$ with respect to  $y_i$ and $z_{i,j}$ iteratively.
+The second algorithm, QFJ (Query Faceting Joint), instead tries to perform joint inference by approximately maximizing our target $l(\mathcal{F})$ with respect to  $y_i$ and $z_{i,j}$ iteratively.
 The algorithm first guesses a set of list items as facet terms.
 Then it clusters those facet terms by approximately maximizing $l_p(\mathcal{F})$, using a greedy approach. 
 After clustering, the algorithm checks whether each facet term ``fits'' in its cluster, and removes those that do not fit.
 Using the remaining facet terms, the algorithm repeats the process (clustering and removing outliers) until convergence.
 
-QFJ is outlined in Algorithm~\ref{alg:qfj}. The input to the algorithm are the candidate list item set $T_{\mathcal{L}}$,
-and the log-likelihoods $l(\mathcal{F})$, $l_p(\mathcal{F})$.
-In the first step, we select top $n$ list items according to $s_t(t)$ as the initial facet terms, because it is less sensitive to the absolute value of the log-likelihood.
+QFJ is outlined in Algorithm~\ref{alg:qfj}. The inputs to the algorithm include the candidate list item set $T_{\mathcal{L}}$, term probability $P(t)$, the log-likelihoods $l(\mathcal{F})$, $l_p(\mathcal{F})$.
+First, we select top $n$ list items according to $P(t)$ as the initial facet terms (Line~\ref{alg:qfj-term}), because it is less sensitive to the absolute value of the probabilities.
 In our experiment, $n$ is set to 1000 to make sure most of the correct facet terms are included.
-Then, the algorithm improves $l(\mathcal{F})$ by iteratively performing functions \textproc{Cluster} and \textproc{RemoveOutliers}.
-\textproc{Cluster} performs clustering over a given set of facet terms.
-In step 10 to 12, it puts each facet terms into a query facet by greedily choosing the best facet, or creates a singleton for the list item, according to the resulting log-likelihood, $l_p(\mathcal{F})$.
-%In step 5, $\Delta_{1}(F)$ is the difference between $l(\mathcal{F})$'s changes of adding the list item $t$ to $F$ and creating a singleton for $t$.
-We choose to process these list items in decreasing order of $s_t(t)$, because it is more likely to form a good query facet in the beginning by doing so.
-\textproc{RemoveOutliers} removes facet terms according to the joint log-likelihood $l(\mathcal{F})$.
-In step 20 to 22, it checks each facet term to see if it fits in the facet, and removes outliers.
-$F'$ is the set of facet terms the algorithm selected when processing each facet $F$.
-%In step 7 to 12, the algorithm chooses the best option for $t$ to maximize the log-likelihood $l(\mathcal{F})$. The list items we select from step 2 may contain ``bad'' facet terms. In step 14 to 24, the algorithm tries to delete those mistakes by locally optimize $l(\{F\})$ for each query facet $F$ formed. For each facet $F$, it consider whether each list item in the list should be delete or not. In step 15, $F'$ is the set of list items that we think should be kept after processing. $\Delta_2$ is the difference between $l(\{F'\})$'s changes of not including $t$ in $F'$ and including $F'$.
+Then, the algorithm optimizes $l(\mathcal{F})$ by iteratively performing functions \textproc{Cluster} and \textproc{RemoveOutliers}.
 
-\todo{re-write}
-\begin{algorithm}[ht!]
+\begin{algorithm}[h!]
  \caption{QFJ}
 \label{alg:qfj}
 \begin{algorithmic}[1]
-  \Require $T_{\mathcal{L}}=\{t\}, l, l_p$
+  \Require $T_{\mathcal{L}}, P(t), l(\mathcal{F}), l_p(\mathcal{F}), n$
   \Ensure $\mathcal{F}=\{F\}$
-  \State $T_\mathcal{F} \leftarrow$ top $n$ list items from $T_{\mathcal{L}}$ according to $s_t(\cdot)$ 
+  \State $T_\mathcal{F} \leftarrow$ top $n$ list items from $T_{\mathcal{L}}$ according to $P(t)$ \label{alg:qfj-term}
   \Repeat
   \State $\mathcal{F}\leftarrow$ \Call{Cluster}{$T_{\mathcal{F}},l_p$}
   \State $T_\mathcal{F}\leftarrow$ \Call{RemoveOutliers}{$\mathcal{F},l$}
@@ -532,8 +535,10 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
   \State
   \Function{cluster}{$T_\mathcal{F}, l_p$}
     \State $\mathcal{F} \leftarrow \emptyset$ 
-    \For {each $t \in T_\mathcal{F}$ in decreasing order of $s_t(t)$}
-      \State Choose to put $t$ into the best facet in $\mathcal{F}$ or add $t$ as a singleton into $\mathcal{F}$, whichever that has the highest resulting $l_p(\mathcal{F})$.
+    \For {each $t \in T_\mathcal{F}$ in decreasing order of $P(t)$} \label{alg:cluster-b}
+      \State choose to put $t$ into the best facet in $\mathcal{F}$ 
+      \State or add $t$ as a singleton into $\mathcal{F}$, 
+      \State whichever has the highest resulting $l_p(\mathcal{F})$.
       %\For {each $F \in \mathcal{F}$}
 	%\State $\Delta_{1}(F)\leftarrow \sum_{t' \in F}{\left(s_p(t,t')-\overline{s_p}(t,t')\right)}$ 
       %\EndFor
@@ -543,7 +548,7 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
       %\State find the best facet, $F_{best} \leftarrow \arg\max_F{\Delta_{1}(F,t)}$
       %\State add $t$ to the facet in $\mathcal{F}$, $F_{best} \leftarrow F_{best} \cup \{t\}$
       %\EndIf
-    \EndFor 
+    \EndFor \label{alg:cluster-e}
   \State \Return $\mathcal{F}$
   \EndFunction 
   \State
@@ -551,9 +556,10 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
   \State $T_\mathcal{F}\leftarrow$ all facet terms in $\mathcal{F}$
   \For {each $F \in \mathcal{F}$}
     \State $F'=\emptyset$
-    \For {each $t \in F$ in decreasing order of $s_t(\cdot)$}
-      \State choose to add $t$ into $F'$ or not, whichever has the highest resulting $l(\{F'\})$
-      \State if not, $T_\mathcal{F}\leftarrow \mathcal{F} - \{t\}$
+    \For {each $t \in F$ in decreasing order of $P(t)$} \label{alg:qfj-check}
+      \State choose to add $t$ into $F'$ or not,
+      \State whichever has the highest resulting $l(\{F'\})$
+      \State if not, $T_\mathcal{F}\leftarrow T_\mathcal{F} - \{t\}$ \label{alg:qfj-remove}
       %\State $\Delta_{2} = \overline{s_t}(t) - s_t(t) - \sum_{t'\in F'}{s_p(t,t')} $
       %\If {$\Delta_{2} > 0$}
 	%  \State remove $t$ from the facet in  $\mathcal{F}$, $F \leftarrow F - \{t\}$
@@ -562,11 +568,22 @@ $F'$ is the set of facet terms the algorithm selected when processing each facet
       %\EndIf
     \EndFor
   \EndFor
-  \State \Return  $T_\mathcal{F}$
+  \State \Return  $T_\mathcal{F}$ \label{alg:qfj-return}
 \EndFunction 
-  \State \Return $\mathcal{F}$
 \end{algorithmic}
 \end{algorithm}
+
+\textproc{Cluster} performs clustering over a given set of facet terms.
+In Line~\ref{alg:cluster-b} to \ref{alg:cluster-e}, it puts each facet terms into a query facet by greedily choosing the best facet, or creates a singleton for the list item, according to the resulting log-likelihood, $l_p(\mathcal{F})$.
+%In step 5, $\Delta_{1}(F)$ is the difference between $l(\mathcal{F})$'s changes of adding the list item $t$ to $F$ and creating a singleton for $t$.
+We choose to process these list items in decreasing order of $P(t)$, because it is more likely to form a good query facet in the beginning by doing so.
+
+\textproc{RemoveOutliers} removes outlier facet terms in the clusters according to the joint log-likelihood $l(\mathcal{F})$. Initially, $T_\mathcal{F}$ contains all facet terms in $\mathcal{F}$ (Line~\ref{alg:qfj-term}). Then, for each cluster in $\mathcal{F}$, the function checks each facet term inside it (Line~\ref{alg:qfj-check}) to see if the facet term fits in the cluster according to the likelihood $l(\{F'\})$. If the facet term does not fit in the cluster (\ie, the facet term is an outlier), the function removes it from $T_\mathcal{F}$ (Line~\ref{alg:qfj-remove}). Last, the function returns the remaining facet terms in $T_\mathcal{F}$ (Line~\ref{alg:qfj-return}), which will be re-clustered in \textproc{Cluster}.
+%$F'$ is the set of facet terms the algorithm selected when processing each facet $F$.
+%In step 7 to 12, the algorithm chooses the best option for $t$ to maximize the log-likelihood $l(\mathcal{F})$. The list items we select from step 2 may contain ``bad'' facet terms. In step 14 to 24, the algorithm tries to delete those mistakes by locally optimize $l(\{F\})$ for each query facet $F$ formed. For each facet $F$, it consider whether each list item in the list should be delete or not. In step 15, $F'$ is the set of list items that we think should be kept after processing. $\Delta_2$ is the difference between $l(\{F'\})$'s changes of not including $t$ in $F'$ and including $F'$.
+
+The parameter $n$ is set to a large number (1000 in our experiments) to ensure not missing facet terms initially, and thus it is not used as a tuning parameter. Therefore, different from QFI, QFJ does not have tuning parameters for optimizing a given performance measure. Instead, QFJ is purely guided by the log-likelihood object in the inferencing procedure. In terms of time complexity QFJ is close to QFI. \textproc{Cluster} processes each of the $n$ facet terms. For each facet term, it considers $k$ potential query facets to add the facet term. For each query facet option, the computation for the resulting $l_p(\mathcal{F})$ takes $O(n)$ time. Thus, overall \textproc{Cluster} takes $O(kn^2)$ time. \textproc{RemoveOutliers} considers to remove each of the $n$ facet term as an outlier only once. In considering removing a facet term, computing $l\{F'\}$ takes $O(n)$ time. Thus, the overall time complexity for \textproc{RemoveOutliers} is $O(n^2)$. QFJ repeats \textproc{Cluster} and \textproc{RemoveOutliers} until convergence, thus QFJ takes $O(r \cdot k n^2)$ time, where $r$ is the number of iterations. In practice, we find $r$ and $k$ are small. Thus, the time complexity for QFJ is similar to QFI.
+
 
 \subsection{Ranking Query Facets}
 The output of QFI and QFJ is a set of query facets $\mathcal{F}$. To produce ranking results, we defined a score for a query facet as $score_F(F)=\sum_{t \in F}{P(t)}$, and rank the query facets according to this scoring, in order to present more facet terms in the top. Facet terms within a query facet are ranked according to $score_t(t)=P(t)$. We leave the investigation for more sophisticated ranking models as future work.
