@@ -67,6 +67,7 @@ This idea is based on the following two assumptions:
 \end{enumerate}
 
 Based on the idea, we develop the following general solution framework for query facet extraction, as also illustrated in Figure~\ref{fig:facet-framework}:
+\vspace{+5mm}
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=0.75\columnwidth]{drawing/facet-solution.eps}
@@ -118,31 +119,31 @@ We also extract candidate lists based on several HTML patterns that target list 
 \caption{HTML code examples for drop-down lists (SELECT), ordered lists (OL), unordered lists (UL) and tables (TABLE).} 
 \label{tab:facet-html}
 \begin{tabular}{|l|} \hline
-\textbf{SELECT}: \\
-\texttt{<select>}\\
-\texttt{<option value=``1''>first class</option>}\\
-\texttt{<option value=``2''>business class</option>}\\
-\texttt{<option value=``3''>economy class</option>}\\
-\texttt{</select>}\\\hline
-\textbf{OL}: \\
-\texttt{<ol>}\\
-\texttt{<li>checked baggage allowance</li>}\\
-\texttt{<li>carry on baggage allowance</li>}\\
-\texttt{<li>excess baggage allowance</li>}\\
-\texttt{</ol>}\\\hline
-\textbf{UL}: \\
-\texttt{<ul>} \\
-\texttt{<li><a href=``courtesy\_bags.aspx''>Courtesy bags</a></li>}\\
-\texttt{<li><a href=``dangerous.aspx''>Dangerous goods</a></li>}\\
-\texttt{<li><a href="devices.aspx">Electronic devices</a></li>}\\
-\texttt{<li><a href="sports.aspx">Sports equipment</a></li>}\\
-\texttt{</ul>}\\\hline
-\textbf{TABLE}: \\
-\texttt{<table>}\\
-\texttt{\small<tr><td></td><td>economy</td><td>business</td>first</li>}\\
-\texttt{\small<tr>domestic<td>2 bags</td><td>3 bags</td><td>4 bags</td></li>}\\
-\texttt{\footnotesize<tr>international<td>1 bag</td><td>2 bags</td><td>3 bags</td></li>}\\
-\texttt{\small</table>}\\\hline
+SELECT \\\hline
+<select>\\
+<option value=``1''>first class</option>\\
+<option value=``2''>business class</option>\\
+<option value=``3''>economy class</option>\\
+</select>\\\hline
+OL \\\hline
+<ol>\\
+<li>checked baggage allowance</li>\\
+<li>carry on baggage allowance</li>\\
+<li>excess baggage allowance</li>\\
+</ol>\\\hline
+UL \\\hline
+<ul> \\
+<li><a href=``courtesy\_bags.aspx''>Courtesy bags</a></li>\\
+<li><a href=``dangerous.aspx''>Dangerous goods</a></li>\\
+<li><a href=``devices.aspx''>Electronic devices</a></li>\\
+<li><a href=``sports.aspx''>Sports equipment</a></li>\\
+</ul>\\\hline
+TABLE \\\hline
+<table>\\
+\small{<tr><td></td><td>economy</td><td>business</td>first</tr>}\\
+\small{<tr><td>domestic</td>2 bags</td><td>3 bags</td><td>4 bags</td></tr>}\\
+\small{<tr><td>international</td>1 bag</td><td>2 bags</td><td>3 bags</td></t>}\\
+</table>\\\hline
 \end{tabular}
 \end{table}
 
@@ -158,10 +159,9 @@ To list a few, \{\concept{economy}, \concept{business}, \concept{first}\} and \{
 
 Ordered lists (OL) and unordered lists (UL) can be nested, as shown in Figure~\ref{fig:nestedlist}. For nested HTML lists, we extract all sibling items from each level. For the example in Figure~\ref{fig:nestedlist}, we will extract two lists,
 \{\concept{Coffee}, \concept{Tea}, \concept{Milk}\} and \{\concept{Black tea}, \concept{Green tea}\}.
-
 \begin{figure}[ht!]
 \centering
-\epsfig{file=drawing/nestedHtmlList.pdf,scale=0.7}
+\epsfig{file=drawing/nestedHtmlList.eps,scale=0.65}
 \caption{An example for nested HTML lists.}
 \label{fig:nestedlist}
 \end{figure}
@@ -370,12 +370,12 @@ concept{
 United} include list item \concept{AA}, \concept{JetBlue}, \concept{Southwest}. 
 \begin{table}[ht!]
 \centering
-\caption{A list context example. $L1$, $L2$, $L3$ are three candidate lists. The list context for \concept{Delta} is marked by underline \underline{\textit{item}}, the list context for \concept{United} is marked by double-underline \underline{\underline{\textit{item}}}.}
+\caption{A list context example. $L1$, $L2$, $L3$ are three candidate lists. The list context for \concept{Delta} is marked by underline \underline{\textit{item}}, the list context for \concept{United} is marked by double-underline \uwave{item}.}
 \label{tab:facet-listcontext}
 \begin{tabular}{|l|} \hline
 $L_1$: \underline{AA}, \textit{Delta}, \underline{JetBlue} \\
 $L_2$: \underline{AA}, \textit{Delta}, \underline{JetBlue},  \underline{Southwest}\\
-$L_3$: \underline{\underline{AA}}, \textit{United}, \underline{\underline{JetBlue}}, \underline{\underline{Southwest}}\\ 
+$L_3$: \uwave{AA}, \textit{United}, \uwave{JetBlue}, \uwave{Southwest}\\ 
 \hline
 \end{tabular}
 \end{table}

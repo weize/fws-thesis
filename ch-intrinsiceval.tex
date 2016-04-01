@@ -28,18 +28,17 @@ Annotators were asked to select queries that they are familiar with from the poo
 Overall, we collect annotations for 100 queries (see Table~\ref{tab:queries}).
 
 \begin{table}[ht!]
-\vspace{-3mm}
 \centering
 \caption{Query statistics}
 \label{tab:queries}
 \begin{tabular}{|r|r|r|} \hline
 Source& \#queries& \#queries \\ 
 & \ collected& \  annotated\\ \hline
-query log & 100 & 30\\ 
-related publications & 20 & 10\\ 
+Query log & 100 & 30\\ 
+Related publications & 20 & 10\\ 
 TREC 2009 Web Track & 50 & 20\\ 
-annotators generated & 62 & 40\\ \hline
-sum & 232 & 100\\ \hline
+Annotators generated & 62 & 40\\ \hline
+Sum & 232 & 100\\ \hline
 \end{tabular}
 \end{table}	
 
@@ -189,9 +188,10 @@ While the numbers of facet terms QFI and QFJ output are similar to QDM, QFI and 
 \centering
 \caption{Facet term classification performance. Results in the upper part are tuned on TF, and results in the bottom part are tuned on wTF. ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-tf}
-\begin{tabular}{|c|l|l|l|l|l|l|r|} \hline
+\setlength\tabcolsep{4pt}
+\begin{tabular}{|r|l|l|l|l|l|l|r|} \hline
 \multicolumn{8}{|c|}{Tuned on TF} \\\hline
-model& TP & TR & TF & wTP & wTR & wTF & \#terms \\ \hline
+Model& TP & TR & TF & wTP & wTR & wTF & \#terms \\ \hline
 QDM & 0.3124 & 0.3182 & 0.2926 & 0.2773 & 0.2852 & 0.2604 & 93.4 \\\hline
 pLSA & 0.2627 & \textbf{0.5640} & 0.3350 & 0.2305 & 0.5001 & 0.2950 & 175.0 \\ \hline
 LDA & 0.2743 & 0.5382 & 0.3365 & 0.2385 & 0.4743 & 0.2941 & 154.0 \\ \hline
@@ -199,7 +199,7 @@ QFJ & $0.3986^{q}_{p,l}$ & $0.4832^{p}$ & $0.4161^{q}_{p,l}$ & $0.3482^{q}_{p,l}
 QFI & $\textbf{0.4157}^{q}_{p,l}$ & $0.5543^{q,j}$ & $\textbf{0.4472}^{q,j}_{p,l}$ & $\textbf{0.3712}^{q,j}_{p,l}$ & $\textbf{0.5018}^{q,j}$ & $\textbf{0.4017}^{q,j}_{p,l}$ & 107.9 \\ 
 \hhline{|========|}
 \multicolumn{8}{|c|}{Tuned on wTF} \\\hline
-model& TP & TR & TF & wTP & wTR & wTF & \#terms \\ \hline
+Model& TP & TR & TF & wTP & wTR & wTF & \#terms \\ \hline
 QDM & 0.3124 & 0.3182 & 0.2926 & 0.2773 & 0.2852 & 0.2604 & 93.4 \\ \hline
 pLSA & 0.2627 & 0.5640 & 0.3350 & 0.2305 & 0.5001 & 0.2950 & 175.0 \\ \hline
 LDA & 0.2625 & \textbf{0.5936} & 0.3389 & 0.2301 & \textbf{0.5285} & 0.2988 & 180.0 \\ \hline
@@ -220,10 +220,11 @@ We report the results in Table~\ref{tab:intrinsic-pair}. From the table, we can 
 
 \begin{table}[ht!]
 \centering
-\small
 \caption{Facet term clustering performance. Results in the upper part are tuned on PF, and results in the bottom part are tuned on wPF. We also report corresponding classification performance in the left part using term precision (TP), term recall (TR) and term F1 (TF). ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-pair}
-\begin{tabular}{|c|l|l|l|l||l|l|l|r|} \hline
+\small
+\setlength\tabcolsep{3pt}
+\begin{tabular}{|r|l|l|l|l||l|l|l|r|} \hline
 \multicolumn{9}{|c|}{Tuned on PF} \\\hline
 Model & PF & wPF & Purity & NMI & TP & TR & TF & \#terms \\ \hline
 QDM & 0.5543 & 0.5435 & 0.9484 & 0.5734 & 0.2489 & 0.2628 & 0.2206 & 103.9 \\ \hline
@@ -256,10 +257,11 @@ We tune all the models on PRF, as well as its weighted version (wPRF). We report
 
 \begin{table}[ht!]
 \centering
-\small
 \caption{Overall performance tuned on PRF (upper) and wPRF (bottom). We also include term precision (TP), term recall (TR), term clustering pair counting F1 (PF), and their weighted versions (wTP, wTR and wPF). We also report ranking-based measures pNDCG, prNDCG and fNDCG, which weight the DCG gains by purity (or precision), recall and F1 of facet terms respectively. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-all}
-\begin{tabular}{|c|c|c|c|c|c|c|c|r|} \hline
+\small
+\setlength\tabcolsep{3.5pt}
+\begin{tabular}{|r|c|c|c|c|c|c|c|r|} \hline
 \multicolumn{9}{|c|}{Tuned on PRF} \\\hline
 Model & TP & TR & PF & PRF & pNDCG & prNDCG & fNDCG & \#terms \\ \hline
 QDM & 0.2946 & 0.3284 & 0.5662 & 0.3279 & 0.1554 & 0.0564 & 0.1441 & 102.5 \\ \hline
@@ -292,7 +294,7 @@ QFI and QFJ are the best two models for the ranking-based measures. QFJ gives th
 \centering
 \caption{Overall performance tuned on fNDCG. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-rank}
-\begin{tabular}{|c|l|l|l|l|l|r|} \hline
+\begin{tabular}{|r|l|l|l|l|l|r|} \hline
 Model & pNDCG & prNDCG & fNDCG & PRF & wPRF & \#terms \\ \hline
 QDM & 0.1442 & 0.0550 & 0.1410 & 0.3331 & 0.2991 & 113.4 \\ \hline
 pLSA & 0.1838 & 0.0674 & 0.1756 & 0.3303 & 0.2880 & 139.0 \\ \hline
