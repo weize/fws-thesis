@@ -15,7 +15,7 @@ A third approach that combines the two search paradigms emerged during the 1990s
 , 
 as illustrated in Figure~\ref{fig:intro-amazon}. Then users can select some of the provided choices and combine them to refine the search results. For example, users can select the choice \concept{new} from the facet \concept{condition} to request only computer monitors in new conditions. Users can also combine the choice \concept{Dell} in the facet \concept{brand} with the choice \concept{LCD} in the facet \concept{display technology} to request only Dell computer monitors with LCD display technology.
 
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{figure2/amazon.png}
 \caption{Faceted search illustrated by an example searching ``computer monitor'' in Amazon. The search interface shown has been simplified for the convenience of illustration.}
@@ -55,7 +55,7 @@ While the principles of faceted taxonomy are widely applicable, faceted search h
 Nevertheless, faceted search naturally suits and holds great potential for assisting multi-faceted queries and exploratory search in the open-domain web setting. We illustrate the idea with four example queries and their facets manually created in Table~\ref{tab:facetexample}. For the first query \concept{baggage allowance}, the facet of different airlines (facet 1) can assist users to quickly compare baggage policies between different airlines. Users can also use other facets, such as flight types, flight classes and specifications to clarify this multi-faceted query. 
 %For the second query, \concept{Mr Bean}, the facets succinctly summarize interesting aspects for the Mr. Bean television series, including episodes titles (facet 2), casts (facet 3) and characters (facet 4). This information could help users to learn and explore this topic. 
 For the second query, \concept{Mars landing}, the facets list important information for exploring this topic, including Mars rovers (facet 1) and countries relevant to Mars landing (facet 2). Users can also combine multiple facets for search intent  clarification (e.g., select \concept{Curiosity} from facet 1 and \concept{pictures} from facet 3 to find pictures of Mars rover Curiosity). The last query shows that faceted search is not limited to short queries. The facets succinctly summarize interesting aspects for the complex query \concept{Effect of building the three gorges dam in China}, including  different types of effect (facet 1), related nature disasters (facet 2) and different regions of the river (facet 3). This information could help users to learn and explore this topic.
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Examples facets for three web search queries.}
 \label{tab:facetexample}
@@ -94,7 +94,7 @@ In this thesis, we extend faceted search into the open-domain web setting, which
 
 We illustrate the idea of FWS in Figure~\ref{fig:fws-example}, supposing a user is preparing for an international flight and wants to find baggage allowance information. When the user searches ``baggage allowance'' in an FWS system (step 1 in the figure), in addition to the search result list (step 2), the system will provide a list of facets (step 3), such as a facet for different airlines, \{\textit{Delta}, \textit{JetBlue}, \textit{AA}, ...\}, a facet for different flight types, \{\textit{domestic}, \textit{international}\}, and a facet for different classes, \{\textit{first}, \textit{business}, \textit{economy}\}. When the user selects choices such as ``Delta'', ``international'' and ``economy'' in these facets (step 4), the system can ideally help to bring web documents that provide 
 baggage allowance information for the economy class of Delta international flights to the top of the search results (step 5).
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.97\columnwidth]{figure/fws-example.png}
 %\includegraphics[scale=0.45]{figure/fws-example.png}

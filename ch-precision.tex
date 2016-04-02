@@ -152,7 +152,7 @@ After training, we use the original inference \QFI and \QFJ as describe in Secti
 \section{Selective Query Faceting Based on Performance Prediction}
 \label{sec:precision-selective}
 In this section we describe selective query faceting -- our selective method for query facet extraction. The idea is motived by the variance in extraction performance we observed -- depending on the nature of queries and extraction models, the quality of the extracted facets varies drastically from excellent to poor and complete noise.  For example, queries about products, such as ``toilet'' and ``volvo'', tend to have more high-quality candidate facets extracted and are therefore easier than other complex queries, such as ``self motivation'', to find query facets. In Figure~\ref{fig:prf-hist}, we show that \PRF could range from 0 to above 0.8 with relatively high variance. The two best performing queries (with around 0.8 \PRFab{1}{1}) are \concept{used cars} and \concept{bmw}.
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \caption{$P\!R\!F_{\alpha=1,\beta=1}$ performance distribution. Results from QFI trained based on maximizing likelihood estimation.}
 \label{fig:prf-hist}
@@ -183,7 +183,7 @@ To investigate the effectiveness of the two types of features, we analyze the co
 
 \todo{May be I should call them posteriors}
 In the table, the utility-based features \TP, \TR, \PP, \PR, \TF, \PF, $P\!R\!F\!$ (PRF score)  are estimated according to Equation~\ref{eq:mest} as described before. Likelihood-based feature $LL_{sum}=\sum_i{\log P(y_i|t_i)} + \sum_{i,j}{\log P(z_{i,j}|p_{i,j},y_i,y_j)}$ calculates the likelihood of extracted facets based on Equation~\ref{eq:ll}. $tLL_{sum}$ and $pLL_{sum}$ separate log-likelihood that accounts for term and pair in $LL_{sum}$. Average log-likelihoods $tLL_{avg}$, $pLL_{avg}$ are calculated by averaging $tLL_{sum}$ and $pLL_{sum}$ by the number of candidate terms $tSize$ and the number of pairs of selected terms (\ie, $y_i=1$), $pSize$.
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{The correlation of the individual features with \QFI's \PRFab{1}{1} performance. \QFI is tested using cross-validation on \DQF dataset under maximum likelihood estimation training. Feature name abbreviation explanation:  initial ``$t$'' -- ``term'', initial ``$p$'' -- ``pair'', $LL$ -- ``log-likelihood'', $avg$ -- ``average'', ``$std$'' -- ``standard deviation'', $tSize$ -- $|T_\mathcal{L}|$, $pSize$ -- $|P_\mathcal{F}|$.}
 \label{tab:cor}
@@ -271,7 +271,7 @@ We denote the different runs by add $\alpha,\beta$ subscript in ``\EUM'' (\eg, \
 \label{sec:precision-existing}
 We first investigate if the five existing models can adapt to precision-oriented scenarios by evaluation based on \PRF with different $\alpha,\beta$ settings. In Figure~\ref{fig:existing}, we show \PRF performance of different $\alpha$ (\ie, term precision is more important than term recall and clustering) on the left, and of different $\beta$ (\ie, term precision and clustering are more important than term recall) on the right. We test all the five models with \QFI, \QFJ trained by \MLE. 
 %We report results on \DFWS (observations are similar for \DQF).
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \caption{$P\!R\!F_{\alpha,\beta}$ performance with different $\alpha$ (left, fixed $\beta\!=\!1$) and different $\beta$ (fixed $\alpha\!=\!1$, right) settings for existing methods on \DQF.}
 \label{fig:existing}
@@ -299,7 +299,7 @@ well as precision-oriented cases.
  
 To further analyze how \QFI adapts to the precision-oriented scenarios, in Table~\ref{tab:qfi}, we report \PRF together with \TP, \TR, \PF and facet size (the total number of terms returned for a query) when setting different $\beta$ in \PRF. 
 %For comparison, we also include the results of \QFJ in the last row. Please note \QFJ's \TP, \TR, \PF are all the same for all $\beta$ settings (\ie, no tuning capability), and its \PRF performance is based $\alpha\!=\!1,\beta\!=\!1/10$. 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{$P\!R\!F_{\alpha,\beta}$ performance with its \TP, \TR, \PF under different $\beta$ settings (fixed $\alpha\!=\!1$) for \QFI on \DQF. ``Size'' reports the average number of terms returned for each queries.}
 \label{tab:qfi} 
@@ -325,7 +325,7 @@ From Table~\ref{tab:qfi}, we find that as term recall factor becomes less and le
 Next, we compare \EUM  and \MLE training to test the effectiveness of the EUM approach we proposed. We first compare \EUM and \MLE training using both \QFI and \QFJ in Figure~\ref{fig:ll-prf}. We report results for $P\!R\!F_{\alpha=1,\beta}$ (\ie, fixed $\alpha=1$ with different $\beta$ settings) on \DQF. Observations are similar for other cases. The figure shows \QFI with \EUM and \MLE training on the left, and \QFJ results on the right. We report three runs of \EUM, which use \PRF under different $\alpha,\beta$  settings (specified in the legend) as the training target.
 
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \caption{$P\!R\!F_{\alpha=1,\beta}$ performance for \MLE and \EUM training using \QFI (left) and \QFJ (right) on \DQF. The three \EUM runs use \PRF under different $\alpha,\beta$ settings (specified in the legend) as the training target.}
 \label{fig:ll-prf}
@@ -353,7 +353,7 @@ Differently, for \QFI, we find \EUM can improve largely over \MLE under the prec
 
 
 To study how \EUM training affects \QFJ in more details, as an example, we show \PRFab{1}{0.1} together with its \TP, \TR, \PF and facet size in Table~\ref{tab:prf}.
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{\PRFab{1}{0.1} with \TP, \TR, \PF for \MLE and \EUM training on \DQF. Subscripts of \EUM indicates the $\alpha,\beta$ setting used for its optimization target \PRF. }
 \label{tab:prf}
@@ -375,7 +375,7 @@ From Table~\ref{tab:prf}, first, we can see when trained on \EUM under precision
 Second, by comparing \EUMab{1}{1} with \EUMab{2}{1}, \EUMab{1}{0.5} in Table~\ref{tab:prf}, we can see \EUMab{2}{1}, \EUMab{1}{0.5} trained models behave more conservatively than \EUMab{1}{1} trained models. This suggest our training is effective -- as we change the training target \PRF parameter from $(\alpha=1,\beta=1)$ to $(\alpha=2,\beta=1)$ and $(\alpha=1,\beta=0.5)$), it learns that we are putting more emphasis on precision, and thus behaves more conservatively.
 
 Last, the improvement of \QFJ in precision oriented scenarios raises a question -- will it outperform the previous best model, \QFI, under precision-oriented scenarios? We test this in Figure~\ref{fig:qfi-qfj}. In the figure, we compare \QFJ under \EUM training with other baselines, including \QFI under \MLE (representing the state-of-the-art baseline) and \EUM training. We report results under \EUMab{1}{0.5} training on \DQF (results are similar in other cases). From the figure we find \QFJ under \EUM training outperforms other models in the precision-oriented scenarios. The difference between \QFJ,\EUM and the state-of-the-art method \QFI,\MLE are statistically significant for $P\!R\!F_{\alpha=1,\beta}$ when $\frac{1}{\beta}>4$.
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \caption{\PRF performance with different $\alpha$, $\beta$ settings for \QFI and \QFJ under \MLE and \EUM training on \DQF. \EUMab{1}{0.5} run result is reported for \EUM.}
 \label{fig:qfi-qfj}
@@ -399,7 +399,7 @@ Last, the improvement of \QFJ in precision oriented scenarios raises a question 
 
 \subsection{Extraction Performance Prediction}
 To predict query facet extraction performance, we build linear regression models using only the PRF score (see Section~\ref{sec:precision-selective}) as the feature (with intercept). We test the models for predicting \PRF under different $\alpha,\beta$, based on 10-fold cross validation on \DQF for \QFI in Table~\ref{tab:regression}. We report root-mean-square deviation (RMSD), Pearson correlation (R), and p-values for the significance of correlation. %(observations are similar for \QFJ runs). 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Linear regression results based on 10-fold cross-validation for predicting \PRF performance. RMSD -- root-mean-square deviation, R -- Pearson correlation.}
 \label{tab:regression}
@@ -429,7 +429,7 @@ To evaluate selective query faceting, we plot the average \PRF performance for q
 %The two runs represent the best model for normal cases and precisely-oriented scenarios respectively.
 \todo{Need to stress that the number of queries changes. So the comparison may make no sense}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \caption{Average \PRF performance for selected queries. The gray area indicates standard error with 95\% confidence intervals. Run: \PRFab{1}{1} as the measure with \MLE trained \QFI as the extraction model}
 \label{fig:selective}

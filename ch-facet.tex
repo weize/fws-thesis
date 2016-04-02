@@ -10,7 +10,7 @@ To cope with this challenge, in this chapter, we propose an alternative solution
 We define a \textbf{query facet} as a set of coordinate terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that explicitly represent one aspect (\eg, \concept{airlines}) of its query (\eg, \concept{baggage allowance}). The coordinate terms share a semantic relationship by being subsumed by a more general hypernym (\eg, \concept{AA}, \concept{Delta}, \concept{JetBlue} are subsumed by \concept{airlines}). 
 % Terms in query facet are generally called \textbf{facet terms}. When it is clear from context, we will simply use ``facet'' for ``query facet'', and ``term'' for ``facet term'' for convenience. Based on these definitions, \textbf{query facet extraction} is to extract query facets for a given query from certain resources, and in our case the top search results for that query.
 In Table~\ref{tab:facet-facetexample}, we show query facets for three example queries. We will using the first query \concept{mars landing} as an example for explanation. The first query facet, \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}, includes different Mars rovers. The second query facet, \{\textit{USA}, \textit{UK}, \textit{Soviet Union}\}, includes countries relevant to Mars landings. The last facet, \{\textit{video}, \textit{pictures}, \textit{news}\}, includes different types of media. We can see that the terms in each facet are instances of the same semantic class.
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Query facet examples for three queries}
 \label{tab:facet-facetexample}
@@ -68,7 +68,7 @@ This idea is based on the following two assumptions:
 
 Based on the idea, we develop the following general solution framework for query facet extraction, as also illustrated in Figure~\ref{fig:facet-framework}:
 \vspace{+5mm}
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.75\columnwidth]{drawing/facet-solution.eps}
 \caption{Query facet extraction framework}
@@ -89,7 +89,7 @@ tables (\ie, <TABLE>). The coordinate terms extracted from each patterns form ca
 
 We apply both of the two types of patterns on the search results to extract candidate lists. These extraction patterns are summarized in Table~\ref{tab:facet-patterns}. We describe them in detail in the following two sections.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Candidate list extraction patterns. All matched \textit{items} in each pattern are extracted as a candidate list.}
 \label{tab:facet-patterns}
@@ -114,7 +114,7 @@ We use the following lexical pattern:
 
 \subsection{HTML Patterns}
 We also extract candidate lists based on several HTML patterns that target list structures in HTML webpages, including drop-down lists, ordered lists, unordered lists and tables. Table~\ref{tab:facet-html} shows some HTML code examples for these list structures.
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{HTML code examples for drop-down lists (SELECT), ordered lists (OL), unordered lists (UL) and tables (TABLE).} 
 \label{tab:facet-html}
@@ -159,7 +159,7 @@ To list a few, \{\concept{economy}, \concept{business}, \concept{first}\} and \{
 
 Ordered lists (OL) and unordered lists (UL) can be nested, as shown in Figure~\ref{fig:nestedlist}. For nested HTML lists, we extract all sibling items from each level. For the example in Figure~\ref{fig:nestedlist}, we will extract two lists,
 \{\concept{Coffee}, \concept{Tea}, \concept{Milk}\} and \{\concept{Black tea}, \concept{Green tea}\}.
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \epsfig{file=drawing/nestedHtmlList.eps,scale=0.65}
 \caption{An example for nested HTML lists.}
@@ -181,7 +181,7 @@ After the cleaning process, we harvest a set of candidate lists, from which we w
 The candidate lists extracted are usually noisy~\cite{zhang2009employing},
 and could be non-relevant to the issued query, therefore they cannot be used directly as query facets. For example, Table~\ref{tab:facet-candidates} shows four candidate lists extracted for the query \concept{baggage allowance}. $L_1$ contains terms that are relevant to \concept{baggage allowance}, but they are not coordinate terms -- \concept{delta}, \concept{france} and \concept{round-trip} are not members of the same class. 
 $L_2$ is a valid query facet, but it is incomplete -- another airline \concept{aa} appears in $L_3$. $L_3$ is mixed with different facets, airlines and travel classes. $L_4$ is non-relevant to the query. 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Four candidate lists for the query \concept{baggage allowance}}
 \label{tab:facet-candidates}
@@ -223,7 +223,7 @@ In our query faceting models, the facet refining problem was treated as a label 
 \label{sec:facet-model}
 Our supervised method is based on a directed graphical model, aiming to capture the dependencies between the term and pair labels. The graphical model is shown in Figure~\ref{fig:gm}. We further describe it as follows.
 
-\begin{figure}[ht!]
+\begin{figure}[!htbp]
 \centering
 \epsfig{file=drawing/gm.eps,scale=0.25}
 \caption{A graphical model for candidate list data}
@@ -303,7 +303,7 @@ features together. For example, \textit{ContentTermFreq.IDF} multiples \textit{C
 query and quality as coordinate terms, a facet term should also be succinct. Thus we also use feature \textit{Length}, which counts the number of words in the list item.
 
 
-\begin{table}[h!]
+\begin{table}[!htbp]
 \centering
 \caption{Item features}
 \label{tab:facet-tfeature}
@@ -350,7 +350,7 @@ as $listIDF(t)=\log{\frac{NL-NL_{t}+0.5}{NL_t+0.5}}$, where $NL$ is the total nu
 
 \textbf{Item Pair Features}, $g(p_{i,j})$ in the graphical model, are used to capture how likely it is that a pair of list items should be grouped into a query facet, given that the two list item both are facet terms. We design item pair features based on different types of similarity between the two list items,  listed in Table~\ref{tab:facet-pfeature}. One straightforward feature is the frequency count of the two list items occurring in a same candidate list (\textit{ListCooccur}). Another one is the difference in the length of the list item (\textit{LengthDiff}), which assumes that similar list item should be of similar length. 
 
-\begin{table}[h!]
+\begin{table}[!htbp]
 \centering
 \caption{Item pair features. $t_i$ and $t_j$ are an item pair.}
 \label{tab:facet-pfeature}
@@ -368,7 +368,7 @@ as $listIDF(t)=\log{\frac{NL-NL_{t}+0.5}{NL_t+0.5}}$, where $NL$ is the total nu
 Besides these straightforward features, item similarity can also be measured by their context similarity. One common context for a term is the text content surrounding the term~\cite{shi2010corpus}. The feature based on text content similarity is called \textit{textContextSim} in Table~\ref{tab:facet-pfeature}. We build the text context using surrounding words (within 25 words) of the list item in the search result webpages, and represent the text context as a vector of term frequency weights, then we use cosine similarity to calculate \textit{TextContextSim}. Another context we propose in this work is based on the candidate lists extracted, which we call list context. We use list items that appears together with the given list item in the same candidate lists as the list context. An example is given in Table~\ref{tab:facet-listcontext}. In the example, the list context for \concept{Delta} include list item \concept{AA} (twice), \concept{JetBlue} (twice), \concept{Southwest}, and the list context for \
 concept{
 United} include list item \concept{AA}, \concept{JetBlue}, \concept{Southwest}. 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{A list context example. $L1$, $L2$, $L3$ are three candidate lists. The list context for \concept{Delta} is marked by underline \underline{\textit{item}}, the list context for \concept{United} is marked by double-underline \uwave{item}.}
 \label{tab:facet-listcontext}
@@ -478,7 +478,7 @@ We use $P(t_i)$ as the measure for facet term importance, and $dist_t(t_i,t_j)=1
 
 Algorithm QFI is shown in Algorithm~\ref{alg:qfi}. It takes the thresholds for term probability $w_{min}$ and cluster diameter $dia_{max}$ as inputs, as well as measure functions for term importance $P(t)$, distance $dist_f(F,t)$ and cluster diameter $dia(F)$. First, it selects facet terms by thresholding $P(t)$ (Line~\ref{alg:qfi-term}). Then it initializes the facet term pool to be clustered (Line~\ref{alg:qfi-pool}), and sets the return result as an empty set (Line~\ref{alg:qfi-fempty}). After that, it processes the facet terms in decreasing order of $P(t)$, and builds a cluster for each of them (Line~\ref{alg:qfi-while1} to \ref{alg:qfi-while1-e}). For each facet term, it builds a cluster by iteratively adding the facet term that is closest to the cluster (Line~\ref{alg:qfi-closest}), until the diameter of the cluster surpasses the threshold $dia_{max}$ (Line~\ref{alg:qfi-dia}). Last, clusters are collected (Line~\ref{alg:qfi-collect}) and returned (Line~\ref{alg:qfi-return}).
 
-\begin{algorithm}[ht!]
+\begin{algorithm}[!htbp]
  \caption{QFI}
 \label{alg:qfi}
 \begin{algorithmic}[1]
@@ -520,7 +520,7 @@ First, we select top $n$ list items according to $P(t)$ as the initial facet ter
 In our experiment, $n$ is set to 1000 to make sure most of the correct facet terms are included.
 Then, the algorithm optimizes $l(\mathcal{F})$ by iteratively performing functions \textproc{Cluster} and \textproc{RemoveOutliers}.
 
-\begin{algorithm}[h!]
+\begin{algorithm}[!htbp]
  \caption{QFJ}
 \label{alg:qfj}
 \begin{algorithmic}[1]

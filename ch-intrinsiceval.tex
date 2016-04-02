@@ -27,7 +27,7 @@ We constructed a pool of 232 queries from different sources, including random sa
 Annotators were asked to select queries that they are familiar with from the pool for annotating.
 Overall, we collect annotations for 100 queries (see Table~\ref{tab:queries}).
 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Query statistics}
 \label{tab:queries}
@@ -64,7 +64,7 @@ Finally, the annotator was asked to give a rating for each constructed query fac
 We recruited 17 human annotators (5 females and 12 males), with 16 graduate students (computer science major) and 1 undergraduate student from our university. Prior to the actual annotation task, annotators were assigned a training session (using another query that is not in the data set) to get familiar with the task and annotation interface.
 
 There are 50 query facets pooled per query, with 224.8 distinct facet terms per query. Annotation statistics for the good and fair facets, as well as the pooled facet, are given in Table~\ref{tab:annotations}. The table shows average number of facet terms per query, average number of query facets per query, and average number of facet terms per facet, for each categories (fair, good, and pooled facets).
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Annotation statistics}
 \label{tab:annotations}
@@ -182,7 +182,7 @@ We report the results in Table~\ref{tab:intrinsic-tf}. From the table, we can se
 This difference can be explain by the number of facet terms each model returned, as shown in the last column of the table. QDM only outputs 93.4 facet terms per query, while pLSA and LDA both output many more facet terms. One possible reason for the low precision of pLSA and LDA is that they select facet terms solely according to term probabilities in the learned topics (query facets in our case) and do not explicitly incorporate query relevance. We find most of their facet terms are frequently-occurring list items, which are not necessary relevant to the query.
 While the numbers of facet terms QFI and QFJ output are similar to QDM, QFI and QFJ obtain much higher precision and recall, likely due to the rich set of features used, which captures both how likely a list item is to be a coordinate term, and how likely it is to be relevant to the query. We will analyze these features in Sections~\ref{sec:intrinsic-features}. 
 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Facet term classification performance. Results in the upper part are tuned on TF, and results in the bottom part are tuned on wTF. ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-tf}
@@ -216,7 +216,7 @@ We report the results in Table~\ref{tab:intrinsic-pair}. From the table, we can 
 
 %Contrarily, pLSA and LDA do not perform for other clustering measures. well in clustering, which could be caused by data sparsity. There are on average 5159 candidate lists per query, but only 3.9 items per list. 
 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Facet term clustering performance. Results in the upper part are tuned on PF, and results in the bottom part are tuned on wPF. We also report corresponding classification performance in the left part using term precision (TP), term recall (TR) and term F1 (TF). ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-pair}
@@ -253,7 +253,7 @@ To compare overall effectiveness of the five models, in this section, we focus o
 
 We tune all the models on PRF, as well as its weighted version (wPRF). We report the overall measure scores (PRF, wPRF), as well as its constituent factors (TP, TR, PF and wTP, wTR, wPF), in order to see the details. We also report the rank measures, pNDCG, prNDCG and fNDCG, to see whether PRF based measures agree with these ranking measures. The results are given in Table~\ref{tab:intrinsic-all}.
 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Overall performance tuned on PRF (upper) and wPRF (bottom). We also include term precision (TP), term recall (TR), term clustering pair counting F1 (PF), and their weighted versions (wTP, wTR and wPF). We also report ranking-based measures pNDCG, prNDCG and fNDCG, which weight the DCG gains by purity (or precision), recall and F1 of facet terms respectively. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-all}
@@ -287,7 +287,7 @@ Since PRF/wPRF do not always agree with the ranking-based measures, and PRF/wPRF
 QFI and QFJ are the best two models for the ranking-based measures. QFJ gives the best performance for prNDCG and fNDCG, which combine both precision and recall of facet terms in weighting DCG. These observations are consistent with the results tuned on PRF/wPRF in Table~\ref{tab:intrinsic-all}. 
 %The improvements of QFI and QFJ over the other three models shown are significant (p < 0.05, using paired t-test), except the improvements of QFJ over QDM for wP and QFI over QDM for fp-nDCG.
 
-\begin{table}[ht!]
+\begin{table}[!htbp]
 \centering
 \caption{Overall performance tuned on fNDCG. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-rank}
