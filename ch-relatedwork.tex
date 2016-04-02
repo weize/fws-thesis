@@ -197,7 +197,7 @@ Our work generates one-level query facets. A one-level query facet is simply a t
 
 \section{Other Related Techniques}
 \label{sec:bg-others}
-There are a number of techniques developed to achieve similar goals as faceted search or faceted web search. In this section, we discuss query subtopic mining, search result diversification, search result clustering/organization and semantic class extraction.
+There are a number of techniques developed to achieve similar goals as faceted search or faceted web search. In this section, we discuss query subtopic mining, search result diversification, search result clustering/organization, query suggestion and semantic class extraction.
 
 \subsection{Query Subtopic Mining}
 To address multi-faceted queries, much previous work studied mining query subtopics (or aspects). A query subtopic is often defined as a distinct information need relevant to the original query. It can be represented as a set of terms that together describe the distinct information need~\cite{wang2009mining,wu2011identifying, dang2011inferring} or as a single keyword that succinctly describes the topic~\cite{song2011overview}. For example, \{\concept{news}, \concept{cnn}, \concept{latest news}, \concept{mars curiosity news}\} is a query subtopic for the query \textit{mars landing}, which describes the search intent of Mars landing news. \{\concept{photos}, \concept{NASA}, \concept{new photos}, \concept{curiosity rover photos}\} is another query subtopic for the query, which describes the search intent about Mars landing photos.
@@ -239,6 +239,29 @@ Instead of organizing search results in groups, there is also some work~\cite{la
 
 
 Faceted Web Search is different from these work in that it provides facets of a query, instead of directly organizing the search results. The facet interface allows users to filter/re-rank search results from multiple aspects, instead of a single taxonomic order. The utility of faceted search interface was investigated in various studies~\cite{pollitt1998key,hearst2006clustering,pratt1999knowledge,yee2003faceted,kaki2005findex,rodden2001does}, where it was shown that users engaged in exploratory tasks often prefer the faceted search interface over simple ranked result list, as well as the alternative ways of organizing search results.
+
+\subsection{Query Suggestion}
+Query suggestion (or query recommendation) is a common technique used by search engines to assist users in reformulating queries. In the suggestion process, a user start with issuing an initial query that may be ineffective. Then, the system provides a set of alternative queries that may better address the user's information need as suggestions. After that, the user can select one of the query suggestion to search again. We show an example in Figure~\ref{fig:bg-qsuggestion}, in which a list of related queries for the query \concept{baggage allowance} are suggested.  
+
+\vspace{+5mm}
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.5\columnwidth]{figure2/query-suggestion.png}
+\caption{Example query suggestions for the query \concept{baggage allowance}}
+\label{fig:bg-qsuggestion}
+\end{figure}
+
+Query suggestion and Faceted Web Search are similar in that both of them provide terms for users to select and reformulate queries. However, they are very different in the philosophy behind. In query suggestion, the system provides related queries or queries similar to the initial issued query, and the provided suggestions are used to replace the initial query. In Faceted Web Search, the system provides facets for the query, which describe the search intent from different aspects and are used to refine the initial query instead of replacing it. Due to the difference in the philosophy behind, the way they present suggestions/facet terms are very different. Query suggestions are presented (usually) as a flat list, as shown in Figure~\ref{fig:bg-qsuggestion}. Faceted Web Search instead presents facet terms in a more structured way. The facet terms are grouped together in query facets. For example, in Figure~\ref{fig:fws-example}, \concept{AA}, \concept{Delta}, \concept{JetBlue} are grouped together under \concept{Airline}. By grouping terms into query facets, the facet interface essentially provides a skip list of these facet terms for users. More specifically, a user can skip an entire query facet if the user finds the facet irrelevant, while in the query suggestion interface, the user need to examine each suggestions one by one.
+
+
+There has been significant previous work on query suggestion, we briefly review some of it below. Most of the previous work relies on query logs for query suggestion~\cite{baeza2004query,jones2006generating,mei2008query,ozertem2011suggestion}. For example, \citet{baeza2004query} provided query suggestions by clustering related queries in query logs, and \citet{jones2006generating} suggested strongly related queries identified from pairs of successively issued queries found in query logs. One widely used technique is exploiting query-click graphs~\cite{craswell2007random,mei2008query,ozertem2011suggestion}. The query-click graph~\cite{craswell2007random} is a bipartite graph consists of nodes representing queries and documents. The two types of nodes are connecting by edges representing clicks on the document for that query. By performing a random walking on this bipartite graph, query similarity can be calculated, and more similar queries can be shown as suggestions. 
+
+In the cases where query logs are not available, only a few methods have been proposed for query suggestions. \citet{bhatia2011query} relied on the corpus to find related queries as suggestions. They extracted frequently occurring phrases and n-grams from the text corpus, and used them as suggestions for auto-completing the query that a user is typing.  \citet{luo2008medsearch} relied on MeSH (Medical Subject Headings), a medical thesaurus, to find related medical phrases as query suggestions for a medical search engine.
+
+%Another line of related work on query suggestion is diversifying query suggestions (e.g., [73, 94]). While search result diversification (e.g., [3, 18]) aims at producing retrieval results that contain a mixture of (topically) different documents, query-side diversification focuses on generating a list of diverse queries, which maximizes the diversity between query-suggestion pairs. 
+%Ma et al. [73] proposed a framework for diversifying query suggestions. They first generated the Markov random walk model on the query-URL bipartite graph by adding the top ranked query into a candidate set. Then, other queries were ranked by running the expected hitting time analysis, which could demote the ranks of (unranked) queries to the ranked queries. Thus, the result of ranked suggestions (i.e., queries) could be diversified. 
+%Song et al. [94] also discussed the same problem, and selected query candidates from query logs by ranking them in the order that maximizes the similarity and diversity between the queries.
+% They measures diversity based on the difference between the original search results and the results of suggested queries. To quantify the difference, several features were devised, e.g., the similarity of the ODP3 category of two search results, rank correlation coefficient for the URLs in two search results, etc. However, these studies are also limited in their application to domain-specific search environments as they require query logs and clickthrough statistics.
 
 
 \subsection{Semantic Class Extraction}
