@@ -287,7 +287,7 @@ Since PRF/wPRF do not always agree with the ranking-based measures, and PRF/wPRF
 QFI and QFJ are the best two models for the ranking-based measures. QFJ gives the best performance for prNDCG and fNDCG, which combine both precision and recall of facet terms in weighting DCG. These observations are consistent with the results tuned on PRF/wPRF in Table~\ref{tab:intrinsic-all}. 
 %The improvements of QFI and QFJ over the other three models shown are significant (p < 0.05, using paired t-test), except the improvements of QFJ over QDM for wP and QFI over QDM for fp-nDCG.
 
-\begin{table}[h!]
+\begin{table}[ht!]
 \centering
 \caption{Overall performance tuned on fNDCG. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
 \label{tab:intrinsic-rank}
@@ -305,9 +305,10 @@ QFI  &  $\textbf{0.3350}^{q}_{p,l}$  &  $0.1618^{q,j}_{p,l}$  &  $0.2825^{q}_{p,
 \label{sec:intrinsic-features}
 In our analysis above, we credit the success of QFI/QFJ models to the rich set of features they used. In this section, we analyze these features to: (1) discover which features are important and which are not; (2) test our hypothesis that the success of QFI/QFJ is due to the rich set of features.
 
+\subsubsection{Feature Weight Analysis}
 We first test the importance of our features by their weight learned in the model. Note that our features have been standardized (removing the mean and scaling to unit variance\todo{standardization description}), and thus the weights are comparable. Higher weight in its absolute suggests the corresponding feature is more important. Table~\ref{tab:intrinsic-tanalysis} shows the weight learned for item features (Section~\ref{sec:facet-features}) in one fold of the 10-fold cross-validation (results are similar for other folds). Not surprisingly, list TF/IDF based features which are used to capture the likelihood of being a coordinate term have relatively high weights, with \textit{ListTermFreq.ListIDF} being the most important features. Other features that are used to capture query relevance also obtain relatively high weight, \eg, \textit{ContentSiteFreq}, \textit{ContentTermFreq.IDF}. 
 %We also find features that are relatively less important. 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Item feature weights learned in one fold of the 10-fold cross-validation (results are similar for other folds). Features are sorted by the absolute value of the weights. The features are explained in Table~\ref{tab:facet-tfeature}.}
 \label{tab:intrinsic-tanalysis}
@@ -347,8 +348,7 @@ ListTextTermFreq & -0.0295 \\ \hline
 \end{table}
 
 In Table~\ref{tab:intrinsic-panalysis}, we show the weights learned for item pair feature (Section~\ref{sec:facet-features}) in one fold of the 10-fold cross-validation (results are similar for other folds). The table suggests that \textit{ContextListSim} and \textit{ContextTextSim} are the two most important item pair features. Though both \textit{ContextListSim} and \textit{ListCooccur} are based on the item occurrence in candidate lists, the weight for \textit{ListCooccur} is far less than the weight for \textit{ContextListSim}. This can be explained by the example in Table~\ref{tab:facet-listcontext}, which shows that \textit{ContextListSim} can assign high value for semantically related list items, even if they do not co-occur in a candidate list.
-
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Item pair feature weights learned in one fold of the 10-fold cross-validation (results are similar for other folds). Features are sorted by the absolute value of the weights. The features are explained in Table~\ref{tab:facet-pfeature}.}
 \label{tab:intrinsic-panalysis}
@@ -361,8 +361,9 @@ LengthDiff & 0.0271 \\ \hline
 \end{tabular}
 \end{table}
 
+\subsubsection{Feature Ablation Experiments}
 Next we investigate the effectiveness of our features based on feature ablation experiments, in which we remove one feature (or a set of features) at a time to examine the effectiveness of the each feature (or feature set) in the presence of other features. The results are reported in Table~\ref{tab:intrinsic-ablation}.
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{PRF performance changes when suppressing each features or feature sets. $\Delta$PRF shows the PRF performance change when excluding the corresponding feature (or feature set). $\Delta$PRF\% shows the PRF change in percentage. The p-values reported are based on paired t-test. ListText, ListUl, ListSelect, ListOl, ListTr, ListTd, Content, Title denote feature sets in which the features are extracted from the corresponding fields (\eg, ListText = \{ListTextTermFreq, ListTextPageFreq, ListTextSiteFreq\}). 
 %\textit{List} denote features extracted from all types candidate lists. 
@@ -395,15 +396,14 @@ From Table~\ref{tab:intrinsic-ablation}, we can see that the feature ablation ex
 
 %Last, we test our hypothesis that the superiority of QFI and QFJ is due to the rich set of features used. To test that, we include the features one by one in the query faceting model, examine how the performance changes when more and more features are used, and compare the performance with using all the features.
 
+\subsubsection{Feature Accumulation Experiments}
 Last, we want to test our hypothesis that the improvements of QFI and QFJ over other models are due to the rich set of features used in QFI and QFJ. To test this hypothesis, we include the features one by one in QFJ, and examine how the performance changes when more and more features are used. We cumulate the features in the order of feature importance (starting from the most important one). The feature importance is based on the learned feature weights (absolute value of the weights) we shown in Table~\ref{tab:facet-tfeature} and Table~\ref{tab:facet-pfeature}. 
 
 %we compare the performance when using all the features with a subset of the features. The improvement of the full feature set over a feature subset will indicate that the rich set of features is indeed useful and are the reason for QFI's/QFJ's improvements over other baselines. We construct different subsets of features by including the features one by one. We cumulate the features in the order of feature importance (starting from the most important one). The feature importance is based on the learned feature weights (absolute value of the weights) we shown in Table~\ref{tab:facet-tfeature} and Table~\ref{tab:facet-pfeature}. 
 
 Table~\ref{tab:intrinsic-cumfeatures} reports the PRF performance for QFJ each time when including an additional feature. Note that the model needs at least one item feature and one item pair feature, therefore we start with adding the most important item feature, \textit{ListTermFreq.ListIDF}, and the most important item pair feature, \textit{ContextListSim}. Then we add other features in the feature importance order. We report the improvement in PRF performance when adding a feature by $\Delta{PRF}$. $\Delta{PRF}\%$ shows the improvement in percentage. We test if the changes are statistically significant based on paired t-test, and report p-values in the table. Results for QDM, pLSA and LDA are also included for comparison.
 
-From Table~\ref{tab:intrinsic-cumfeatures}, we find that when starting with the first three features, QFJ could not outperforms the three baselines (QDM, pLSA and LDA) in PRF, but as QFJ incorporates more and more features, it starts to outperform the baselines and the improvement generally increases as it incorporates more and more features. More specifically, QFJ start outperforms the three baselines after adding the fourth feature \textit{ContentSiteFreq} with PRF 0.4159, and eventually achieves 0.4615 in PRF when using all the features. This verifies our hypothesis that the rich set of features is the reason for our models' improvements over the baselines. However, we also notice that PRF performance increases much more slowly after the first few features, suggesting that some of the features are correlated or do not provide much additional information. This implies that we could exclude those features to save some computation when efficiency is critical.
-
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{PRF performance when cumulating features in QFJ. $\Delta{PRF}$ reports the improvement in PRF after adding each feature. $\Delta{PRF}\%$ shows the improvements in percentages. P-values are from paired t-tests for testing the improvements. QDM, pLSA, LDA results tuned on PRF are also included for comparison.}
 \label{tab:intrinsic-cumfeatures}
@@ -449,12 +449,16 @@ LDA & 0.3293 & N/A & N/A & N/A \\ \hline
 \end{tabular}
 \end{table}
 
+From Table~\ref{tab:intrinsic-cumfeatures}, we find that when starting with the first three features, QFJ could not outperforms the three baselines (QDM, pLSA and LDA) in PRF, but as QFJ incorporates more and more features, it starts to outperform the baselines and the improvement generally increases as it incorporates more and more features. More specifically, QFJ start outperforms the three baselines after adding the fourth feature \textit{ContentSiteFreq} with PRF 0.4159, and eventually achieves 0.4615 in PRF when using all the features. This verifies our hypothesis that the rich set of features is the reason for our models' improvements over the baselines. However, we also notice that PRF performance increases much more slowly after the first few features, suggesting that some of the features are correlated or do not provide much additional information. This implies that we could exclude those features to save some computation when efficiency is critical.
+
+
+
 In addition, Table~\ref{tab:intrinsic-cumfeatures} also suggests several effective features, including \textit{ListTermFreq.ListIDF}, \textit{ContextListSim}, \textit{ContentSiteFreq}, \textit{ListTextSiteFreq} and \textit{ContextTextSim}. Using only the two features, \textit{ListTermFreq.ListIDF} and \textit{ContextListSim}, QFJ can obtain over 60\% of the PRF performance it achieves when using all the 33 features. When adding \textit{ContentSiteFreq}, \textit{ListTextSiteFreq}, \textit{ContextTextSim}, we observe statistically significant improvement in PRF. This observation is consistent with our previous feature analysis.
 
 
 \subsection{Comparing Extraction Patterns} \label{sec:intrinsic-patterns}
 Similar to the feature ablation experiments, we investigate the effectiveness of different candidate list extraction patterns (Section~\ref{sec:facet-candidate}) by removing one extraction pattern at a time. Note this pattern ablation not only removes the candidate lists we used for refining facets, but also will affect the features we used in QFI and QFJ. For example, when excluding the SELECT pattern, the feature \textit{ListSelectTermFreq} will also be excluded. We report the results for QFI tuned on PRF in Table~\ref{tab:intrinsic-clists}.
-\begin{table}[H]
+\begin{table}[ht!]
 \centering
 \caption{PRF performance changes when suppressing each candidate list extraction pattern. $\Delta$PRF shows the PRF performance change when excluding the corresponding extraction pattern. $\Delta$PRF\% shows the PRF change in percentage. The p-values reported are based on paired t-test. These patterns are explained in Section~\ref{sec:facet-candidate}). The results are based on QFI model tuned on PRF (other results are similar).}
 \label{tab:intrinsic-clists}
