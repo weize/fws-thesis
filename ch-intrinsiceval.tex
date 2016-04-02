@@ -153,8 +153,6 @@ We assign weight for facet term pair $w(t_1, t_2)$ using their sum, $w(t_1) + w(
 \section{Experiments}
 \label{sec:ie-exp}
 \todo{Need an introduction}
-\todo{Some results need to be updated}
-\todo{add more experiments testing extraction patterns, features}
 \subsection{Experiment settings}
 \todo{separate to multiple paragraphs}
 We compare the effectiveness of the five models, QDM, pLSA, LDA and QFI, QFJ (described in Chapter~\ref{ch:facet}), on the 100-query data set.
@@ -214,7 +212,7 @@ From Table~\ref{tab:intrinsic-tf}, we also find the the weighted measures are us
 \subsection{Clustering Facet Terms}
 Next, we evaluate the models in terms of their effectiveness in clustering facet terms, using clustering measures described in Section~\ref{sec:intrinsic-pmeasures}. More specifically, we compare the clustering performance of these models in terms of pair counting F1 (PF), wPF (weighted version of PF), purity and NMI (normalized mutual information). We compare results tuned on PF  and wPF, which takes facet term weighting into account.
 
-We report the results in Table~\ref{tab:intrinsic-pair}. From the table, we can see that QFI and QFJ perform relatively well for PF, wPF and NMI. The improvements of QFI and QFJ over the other three models shown are all significant (p < 0.05, using paired t-test)\todo{test}. For purity, pLSA and LDA obtain relatively higher score, which is because they returned a relatively small number of facet terms (shown in the ``\#terms'' column), and thus only cluster a very small number of terms together in each clusters.  These observations are consistent for the runs tuned on PF and its weighted version, wPF.
+We report the results in Table~\ref{tab:intrinsic-pair}. From the table, we can see that QFI and QFJ perform relatively well for PF, wPF and NMI. The improvements of QFI and QFJ over the other three models shown are all significant (p < 0.05, using paired t-test). For purity, pLSA and LDA obtain relatively higher score, which is because they returned a relatively small number of facet terms (shown in the ``\#terms'' column), and thus only cluster a very small number of terms together in each clusters.  These observations are consistent for the runs tuned on PF and its weighted version, wPF.
 
 %Contrarily, pLSA and LDA do not perform for other clustering measures. well in clustering, which could be caused by data sparsity. There are on average 5159 candidate lists per query, but only 3.9 items per list. 
 
@@ -244,7 +242,7 @@ QFI  &  $\textbf{0.7370}^{q,j}_{p,l}$  &  $\textbf{0.7090}^{q,j}_{p,l}$  &  $0.9
 \end{table}
 
 
-The better performance in clustering for QFI and QFJ can be explained by their incorporating factors other than list item co-occurrence information. In our feature analysis (Section~\ref{sec:intrinsic-features}), besides the one item co-occurrence related feature, \textit{listContextSim}, we also find that \textit{textContextSim} has a relatively high weight. \textit{textContextSim} is used to capture the similarity of the two list items using their surrounding text, so it can help to group two facet terms together even if they might not co-occur a lot in candidate lists. As an example, for the query \textit{baggage allowance}, we find different airlines do not co-occur a lot in candidate lists, (e.g. \textit{delta} and \textit{jetblue} only co-occur twice), but they tend to have high \textit{textContextSim} (e.g. $TextContextSim(delta,jetblue)=0.81$), and are therefore grouped together by QFI and QFJ \todo{check}.
+The better performance in clustering for QFI and QFJ can be explained by their incorporating factors other than list item co-occurrence information. In our feature analysis (Section~\ref{sec:intrinsic-features}), besides the one item co-occurrence related feature, \textit{listContextSim}, we also find that \textit{textContextSim} has a relatively high weight. \textit{textContextSim} is used to capture the similarity of the two list items using their surrounding text, so it can help to group two facet terms together even if they might not co-occur a lot in candidate lists. As an example, for the query \textit{baggage allowance}, we find different airlines do not co-occur a lot in candidate lists, (e.g. \textit{delta} and \textit{jetblue} only co-occur twice), but they tend to have high \textit{textContextSim} (e.g. $TextContextSim(delta,jetblue)=0.81$), and are therefore grouped together by QFI and QFJ.
 
 From Table~\ref{tab:intrinsic-pair}, we also find term clustering performance does not necessarily ``agree'' with term classification performance. Comparing QFI and QFJ, we find QFI obtains better clustering performance of the facet terms it selected, but does relatively poorly in selecting facet terms. Thus, next we will investigate the overall performance.
 
@@ -287,7 +285,6 @@ Comparing the results tuned on PRF and its weighted version, wPRF, we find weigh
 
 Since PRF/wPRF do not always agree with the ranking-based measures, and PRF/wPRF do not account for facet ranking effectiveness, we also test the models based on results tuned on these ranking-based measures. We report results for the ranking-based measures and PRF/wPRF tuned on fNDCG in Table~\ref{tab:intrinsic-rank} (results tuned on pNDCG, prNDCG are similar). 
 QFI and QFJ are the best two models for the ranking-based measures. QFJ gives the best performance for prNDCG and fNDCG, which combine both precision and recall of facet terms in weighting DCG. These observations are consistent with the results tuned on PRF/wPRF in Table~\ref{tab:intrinsic-all}. 
-\todo{add t-test}
 %The improvements of QFI and QFJ over the other three models shown are significant (p < 0.05, using paired t-test), except the improvements of QFJ over QDM for wP and QFI over QDM for fp-nDCG.
 
 \begin{table}[h!]
@@ -455,7 +452,7 @@ LDA & 0.3293 & N/A & N/A & N/A \\ \hline
 In addition, Table~\ref{tab:intrinsic-cumfeatures} also suggests several effective features, including \textit{ListTermFreq.ListIDF}, \textit{ContextListSim}, \textit{ContentSiteFreq}, \textit{ListTextSiteFreq} and \textit{ContextTextSim}. Using only the two features, \textit{ListTermFreq.ListIDF} and \textit{ContextListSim}, QFJ can obtain over 60\% of the PRF performance it achieves when using all the 33 features. When adding \textit{ContentSiteFreq}, \textit{ListTextSiteFreq}, \textit{ContextTextSim}, we observe statistically significant improvement in PRF. This observation is consistent with our previous feature analysis.
 
 
-\subsection{Comparing Extraction Patterns}
+\subsection{Comparing Extraction Patterns} \label{sec:intrinsic-patterns}
 Similar to the feature ablation experiments, we investigate the effectiveness of different candidate list extraction patterns (Section~\ref{sec:facet-candidate}) by removing one extraction pattern at a time. Note this pattern ablation not only removes the candidate lists we used for refining facets, but also will affect the features we used in QFI and QFJ. For example, when excluding the SELECT pattern, the feature \textit{ListSelectTermFreq} will also be excluded. We report the results for QFI tuned on PRF in Table~\ref{tab:intrinsic-clists}.
 \begin{table}[H]
 \centering

@@ -55,8 +55,6 @@ estimation for $T_f$ is about twice of $T_t$, for simplicity, in our experiment,
 Based on this user model, given oracle/annotator feedback, which represents all the terms that a user may select, the extrinsic evaluation works as follows. We incrementally include each term in oracle/annotator feedback as a feedback terms, and measure how ranking performance changes together with the time cost estimated based on the user model. 
 
 \section{Experiments} \label{sec:ee-exp}
-\todo{add an interactive model baseline}
-\todo{Call QFI, QFJ consistently}
 %In this section, we describes the experiment results for comparing 
 \subsection{Experiment Settings}
 \textbf{Data set}. For the document corpus, we use the ClueWeb09 Category-B collection and apply spam filtering with a threshold of 60 using the Waterloo spam scores~\cite{cormack2011efficient}. The spam-filtered collection is stemmed using the Krovetz stemmer~\cite{krovetz1993viewing}. For the query topics and subtopics, we used those from TREC Web Track's diversity task from 2009 to 2012, which also contain relevance judgments for documents with respect to each subtopic. We constrain the subtopics to have at least one relevant document in the spam-filtered collection, and this results in 196 queries and 678 query subtopics in our experiment set. For the relevance judgment, any documents that are not in the spam-filtered collection are discarded.

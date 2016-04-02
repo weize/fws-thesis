@@ -107,7 +107,7 @@ Lexical & \textit{item}, \{,\textit{item}$\}^*$, (and|or) \{other\} \textit{item
 \subsection{Lexical Patterns}
 We use the following lexical pattern:
 \begin{center}
-\textit{item}, \{,\textit{item}$\}^*$ \{,\} (and|or) \{other\} \textit{item} 
+\textit{item} \{,\textit{item}$\}^*$ \{,\} (and|or) \{other\} \textit{item} 
 \end{center}
 \todo{James' comments}We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the sentence, \concept{The airlines servicing this airport are AA, Delta, and JetBlue
 }, we can extract the candidate list \{\concept{AA}, \concept{Delta}, \concept{JetBlue}\} using the lexical pattern. For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
@@ -278,7 +278,7 @@ The different data sources we used include a large web corpus (ClueWeb09), the l
 \begin{itemize}
  \item Content: the textual content of the search result webpages
  \item Title: the title of the search result webpages
- \item List: the candidate lists extracted from the search results. We also consider the candidate lists extracted by each extraction pattern (Section~\ref{sec:facet-candidate}) separately, as we find these patterns are of different extraction qualities \todo{add ref}.
+ \item List: the candidate lists extracted from the search results. We also consider the candidate lists extracted by each extraction pattern (Section~\ref{sec:facet-candidate}) separately, as we find these patterns are of different extraction qualities (Section~\ref{sec:intrinsic-patterns}).
   \begin{itemize}
    \item Text: candidate lists extracted based on the lexical pattern
    \item Ol: candidate lists extracted based on the OL pattern
