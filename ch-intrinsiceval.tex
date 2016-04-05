@@ -152,14 +152,11 @@ We assign weight for facet term pair $w(t_1, t_2)$ using their sum, $w(t_1) + w(
 
 \section{Experiments}
 \label{sec:ie-exp}
-\todo{Need an introduction}
-\subsection{Experiment settings}
-\todo{separate to multiple paragraphs}
-We compare the effectiveness of the five models, QDM, pLSA, LDA and QFI, QFJ (described in Chapter~\ref{ch:facet}), on the 100-query data set.
-All the models take the same extracted and cleaned candidate lists (see Section~\ref{sec:facet-candidate}) as input.
+In this section, we conduct experiments based on intrinsic evaluation described above. In the experiments, we investigate different facet refining models, analyze features used in our query faceting models (Section~\ref{sec:facet-features}) and different facet candidate extraction patterns (Section~\ref{sec:facet-candidate}).
+\subsection{Experiment settings} \label{sec:intrinsic-settings}
+We compare the effectiveness of the five models, QDM, pLSA, LDA and QFI, QFJ (described in Chapter~\ref{ch:facet}), on the 100-query data set, which we call \DQF. All the models take the same extracted and cleaned candidate lists (see Section~\ref{sec:facet-candidate}) as input.
 We perform 10-fold cross validation for training/testing and parameter tuning (if applicable) in all experiments and for all models.
-When training the graphical model, we standardize features by removing the mean and scaling to unit variance. \todo{standardization description}
-We set both of the two regularizers $\sigma$ and $\gamma$ to be 1.
+When training the graphical model, we standardize features (\ie, determine the distribution mean and standard deviation for each feature from the train data set. Then subtract the mean from each feature. Then divide the values of each feature by its standard deviation.) We set both of the two regularizers $\sigma$ and $\gamma$ to be 1.
 %we use logistic regression implemented in scikit-learn~\cite{scikit-learn} to estimate $\mu$ and $\lambda$ in Equation~\ref{eq:lg}, and set both regularizers $\sigma$ and $\gamma$ to be 1.
 There are too many negative instances ($y_i=0$, $z_{i,j}=0$) in the training data, so we stratify samples by labels with the ratio of positive:negative to be 1:3.
 For QDM, we tune the two parameters used in the clustering algorithm $Dia_{max}$ (the diameter threshold for a cluster) and $W_{min}$ (the weight threshold for a valid cluster), as well as two parameters used for selecting facet terms in each facet ($S_{t|F} > \alpha |Sites(F)|$ and $S_{t|F}>\beta$).
@@ -178,10 +175,7 @@ We returned top 10 query facets from all the five models in all evaluation.
 We first evaluate the models in terms of their effectiveness in finding facet terms. More specifically, we compare the classification performance of these models in terms of term precision (TF), term recall (TR), term F1 (TF) and their weighted versions (wTF, wTR, wTF). We compare results tuned on TF, which keeps a balance between term precision and term recall, and wTF, which, in addition, takes facet term weighting into account.
 
 
-We report the results in Table~\ref{tab:intrinsic-tf}. From the table, we can see that QFI and QFJ perform relatively well for both precision and recall. Their improvements over the other three models shown are all statistically significant (p < 0.05, using paired t-test) \todo{need to test}. The two topic model based approaches, pLSA and LDA, have relatively high recall and low precision. Contrarily, QDM has higher precision than the two topic models, but low recall.
-This difference can be explain by the number of facet terms each model returned, as shown in the last column of the table. QDM only outputs 93.4 facet terms per query, while pLSA and LDA both output many more facet terms. One possible reason for the low precision of pLSA and LDA is that they select facet terms solely according to term probabilities in the learned topics (query facets in our case) and do not explicitly incorporate query relevance. We find most of their facet terms are frequently-occurring list items, which are not necessary relevant to the query.
-While the numbers of facet terms QFI and QFJ output are similar to QDM, QFI and QFJ obtain much higher precision and recall, likely due to the rich set of features used, which captures both how likely a list item is to be a coordinate term, and how likely it is to be relevant to the query. We will analyze these features in Sections~\ref{sec:intrinsic-features}. 
-
+We report the results in Table~\ref{tab:intrinsic-tf}. 
 \begin{table}[!ht]
 \centering
 \caption{Facet term classification performance. Results in the upper part are tuned on TF, and results in the bottom part are tuned on wTF. ``\#terms'' shows the average number of facet terms returned per query for each models. The best performance scores are marked in boldface. Statistically significant improvements (p < 0.05, paired t-test) of QFI/QFJ over other models are marked by superscripts/subscripts \textit{q} for QDM, \textit{p} for pLSA, \textit{l} for LDA and \textit{j} for QFJ.}
@@ -205,6 +199,12 @@ QFJ & $0.3986^{q}_{p,l}$ & $0.4832^{p}$ & $0.4161^{q}_{p,l}$ & $0.3482^{q}_{p,l}
 QFI & $\textbf{0.4058}^{q}_{p,l}$ & $0.5670^{q,j}$ & $\textbf{0.4461}^{q,j}_{p,l}$ & $\textbf{0.3623}^{q}_{p,l}$ & $0.5126^{q,j}$ & $\textbf{0.4003}^{q,j}_{p,l}$ & 112.6 \\ \hline
 \end{tabular}
 \end{table}
+From the table, we can see that QFI and QFJ perform relatively well for both precision and recall. 
+%Their improvements over the other three models shown are all statistically significant (p < 0.05, using paired t-test)
+The two topic model based approaches, pLSA and LDA, have relatively high recall and low precision. Contrarily, QDM has higher precision than the two topic models, but low recall.
+This difference can be explain by the number of facet terms each model returned, as shown in the last column of the table. QDM only outputs 93.4 facet terms per query, while pLSA and LDA both output many more facet terms. One possible reason for the low precision of pLSA and LDA is that they select facet terms solely according to term probabilities in the learned topics (query facets in our case) and do not explicitly incorporate query relevance. We find most of their facet terms are frequently-occurring list items, which are not necessary relevant to the query.
+While the numbers of facet terms QFI and QFJ output are similar to QDM, QFI and QFJ obtain much higher precision and recall, likely due to the rich set of features used, which captures both how likely a list item is to be a coordinate term, and how likely it is to be relevant to the query. We will analyze these features in Sections~\ref{sec:intrinsic-features}. 
+
 
 From Table~\ref{tab:intrinsic-tf}, we also find the the weighted measures are usually consistent with their corresponding unweighted measures.
 %One exception is that QFJ performs better than QFI in FT, but it does slightly worse than QFJ in wFT. This is likely to be caused by the high recall for QFI, which may include more highly rated facet terms.
@@ -280,7 +280,7 @@ QFI  &  $\textbf{0.3897}^{q,j}_{p,l}$  &  $0.4420^q$  &  $0.5891_{p,l}$  &  $\te
 
 Results in Table~\ref{tab:intrinsic-all} are mostly consistent with the results that were tuned on TF and PF (and their weighted version) in the classification and clustering evaluation above. QDM obtain relatively low term precision and low term recall, but better clustering performance on the selected facet terms (PF and wPF). pLSA and LDA have high recall, but low precision and PF/wPF. This is due to that pLSA and LDA return a lot of facet terms. There are on average 81.15 facet terms per query for the human annotated query facets, but pLSA and LDA returned around twice of that number. QFI and QFJ are the best two models according to the overall performance measures, PRF, wPRF and pNDCG, prNDCG, fNDCG. The differences are statistically significant (p < 0.05 based on paired t-test). We will analysis more on QFI's and QFJ's success in Section~\ref{sec:intrinsic-features}.
 
-Comparing the results tuned on PRF and its weighted version, wPRF, we find weighting encourages returning slightly more facet terms, which is shown in the column \concept{\#terms}, the average number of facet terms returned per query. This can be explained by noting that returning more terms may increase the number of high-rated facet terms found, and thus increase wPRF.\todo{investigation of weighted measures.} Comparing the results for PRF, wPRF with the results for pNDCG, prNDCG, fNDCG, we find the two types of measures agree with each other in general (\eg, QFJ and QFI are better than other three models), but not always (QFI is better than QFJ for the PRF measures, but worse than QFJ for the NDCG measures). 
+Comparing the results tuned on PRF and its weighted version, wPRF, we find weighting encourages returning slightly more facet terms, which is shown in the column \concept{\#terms}, the average number of facet terms returned per query. This can be explained by noting that returning more terms may increase the number of high-rated facet terms found, and thus increase wPRF. Comparing the results for PRF, wPRF with the results for pNDCG, prNDCG, fNDCG, we find the two types of measures agree with each other in general (\eg, QFJ and QFI are better than other three models), but not always (QFI is better than QFJ for the PRF measures, but worse than QFJ for the NDCG measures). 
 
 
 Since PRF/wPRF do not always agree with the ranking-based measures, and PRF/wPRF do not account for facet ranking effectiveness, we also test the models based on results tuned on these ranking-based measures. We report results for the ranking-based measures and PRF/wPRF tuned on fNDCG in Table~\ref{tab:intrinsic-rank} (results tuned on pNDCG, prNDCG are similar). 
@@ -306,7 +306,7 @@ QFI  &  $\textbf{0.3350}^{q}_{p,l}$  &  $0.1618^{q,j}_{p,l}$  &  $0.2825^{q}_{p,
 In our analysis above, we credit the success of QFI/QFJ models to the rich set of features they used. In this section, we analyze these features to: (1) discover which features are important and which are not; (2) test our hypothesis that the success of QFI/QFJ is due to the rich set of features.
 
 \subsubsection{Feature Weight Analysis}
-We first test the importance of our features by their weight learned in the model. Note that our features have been standardized (removing the mean and scaling to unit variance\todo{standardization description}), and thus the weights are comparable. Higher weight in its absolute suggests the corresponding feature is more important. Table~\ref{tab:intrinsic-tanalysis} shows the weight learned for item features (Section~\ref{sec:facet-features}) in one fold of the 10-fold cross-validation (results are similar for other folds).
+We first test the importance of our features by their weight learned in the model. Note that our features have been standardized (Section~\ref{sec:intrinsic-settings}), and thus the weights are comparable. Higher weight in its absolute suggests the corresponding feature is more important. Table~\ref{tab:intrinsic-tanalysis} shows the weight learned for item features (Section~\ref{sec:facet-features}) in one fold of the 10-fold cross-validation (results are similar for other folds).
 \begin{table}[!ht]
 \centering
 \caption{Item feature weights learned in one fold of the 10-fold cross-validation (results are similar for other folds). Features are sorted by the absolute value of the weights. The features are explained in Table~\ref{tab:facet-tfeature}.}

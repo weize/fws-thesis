@@ -1,15 +1,15 @@
 \chapter{Query Facet Extraction}
 \label{ch:facet}
 \section{Introduction}
-In conventional faceted search, facets are generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries in most of the previous work~\cite{teevan2008challenges}. However, this approach is difficult to extend to faceted web search due to the large and heterogeneous nature of the web: because the web is very large, it is
+In conventional faceted search, facets are generated in advance for an entire corpus~\cite{stoica2007automating,dakka2008automatic} either manually or semi-automatically, and then recommended for particular queries~\cite{teevan2008challenges}. However, this approach is difficult to extend to faceted web search due to the large and heterogeneous nature of the web: because the web is very large, it is
 difficult to assign quality facets to every document in the collection and to retrieve the full set of search results and their associated facets at query time; and because the web is heterogeneous, it is difficult to apply the same facets to every search result or every query.
 
-To cope with this challenge, in this chapter, we propose an alternative solution, called \textbf{query facet extraction}~\cite{kong2013extracting}, which extracts facets for queries from their web search results. For example, when users search with the query \concept{baggage allowance}, the system might extract query facets like airlines, \{\concept{Delta}, \concept{JetBlue}, \concept{AA}, ...\}, travel classes, \{\concept{first}, \concept{business}, \concept{economy}\}, and flight types, \{\concept{international}, \concept{domestic}\}. Changing from a global approach that generates facets in advance for an entire corpus to a query-based approach that extract facets from the top-ranked search results, query facet extraction appears to be a promising direction for solving the open-domain faceted search problem -- it not only makes the facet generation problem easier, but also addresses the facet recommendation problem at the same time.
+To cope with this challenge, in this chapter, we propose an alternative solution, called \textbf{query facet extraction}~\cite{kong2013extracting}, which extracts facets for queries (called query facets) from their web search results. For example, when users search with the query \concept{baggage allowance}, the system might extract query facets like airlines, \{\concept{Delta}, \concept{JetBlue}, \concept{AA}, ...\}, travel classes, \{\concept{first}, \concept{business}, \concept{economy}\}, and flight types, \{\concept{international}, \concept{domestic}\}. Changing from a global approach that generates facets in advance for an entire corpus to a query-based approach that extract facets from the top-ranked search results, query facet extraction appears to be a promising direction for solving the open-domain faceted search problem -- it not only makes the facet generation problem easier, but also addresses the facet recommendation problem at the same time.
 
-
-We define a \textbf{query facet} as a set of coordinate terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that explicitly represent one aspect (\eg, \concept{airlines}) of its query (\eg, \concept{baggage allowance}). The coordinate terms share a semantic relationship by being subsumed by a more general hypernym (\eg, \concept{AA}, \concept{Delta}, \concept{JetBlue} are subsumed by \concept{airlines}). 
+Note that the query facets we extracted are one-level (see Section~\ref{sec:bg-facet}). A one-level \textbf{query facet} is a set of terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that are subsumed by an implicit label (\eg, \concept{airlines}). The set of terms succinctly represents different options in the same category (\eg, \concept{airlines}) that a user can select to refine the issued query (\eg, \concept{baggage allowance}). We leave the extension to two-level or hierarchical query facets to future work. As mentioned before, for the sake of convenience, we use \concept{query facets} to refer one-level query facets in the rest of this thesis, unless otherwise specified. 
+%The terms share a semantic relationship by being subsumed by a more general term (\eg, \concept{AA}, \concept{Delta}, \concept{JetBlue} are subsumed by \concept{airlines}). Note 
 % Terms in query facet are generally called \textbf{facet terms}. When it is clear from context, we will simply use ``facet'' for ``query facet'', and ``term'' for ``facet term'' for convenience. Based on these definitions, \textbf{query facet extraction} is to extract query facets for a given query from certain resources, and in our case the top search results for that query.
-In Table~\ref{tab:facet-facetexample}, we show query facets for three example queries. We will using the first query \concept{mars landing} as an example for explanation. The first query facet, \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}, includes different Mars rovers. The second query facet, \{\textit{USA}, \textit{UK}, \textit{Soviet Union}\}, includes countries relevant to Mars landings. The last facet, \{\textit{video}, \textit{pictures}, \textit{news}\}, includes different types of media. We can see that the terms in each facet are instances of the same semantic class.
+In Table~\ref{tab:facet-facetexample}, we show (one-level) query facets for three example queries. We will using the first query \concept{mars landing} as an example for explanation. The first query facet, \{\textit{Curiosity}, \textit{Opportunity}, \textit{Spirit}\}, includes different Mars rovers. The second query facet, \{\textit{USA}, \textit{UK}, \textit{Soviet Union}\}, includes countries relevant to Mars landings. The last facet, \{\textit{video}, \textit{pictures}, \textit{news}\}, includes different types of media. We can see that the terms in each facet are instances of the same semantic class, so they are all subsumed by their class labels (\eg, \concept{Mars rovers}, \concept{countries}, \concept{media}).
 \begin{table}[!ht]
 \centering
 \caption{Query facet examples for three queries}
@@ -43,11 +43,14 @@ The rest of this chapter is organized as follows. We first define the task of qu
 \section{Task Description}
 \label{sec:facet-task}
 \subsection{Query Facet}
-To differentiate our work with facets in conventional faceted search, we call typically facets for a particular query ``query facets''. A query facet is a set of coordinate terms -- i.e., terms that share a semantic relationship by being subsumed by a more general hypernym, and they succinctly represent different options in the same category that a user can select to refine the issued query. 
+%To differentiate our work with facets in conventional faceted search, we call typically facets for a particular query ``query facets''. 
+A \textbf{query facet} is a set of terms (\eg, \{\concept{AA}, \concept{Delta}, \concept{JetBlue},...\}) that are subsumed by an implicit label (\eg, \concept{airlines}). The set of terms succinctly represents different options in the same category (\eg, \concept{airlines}) that a user can select to refine the issued query (\eg, \concept{baggage allowance}). We call the terms inside a query facet \textbf{facet terms}, which can be single words (e.g. \concept{international}, \concept{domestic} in Table~\ref{tab:facet-facetexample}) or phrases (e.g. \concept{first class}, \concept{business class} in Table~\ref{tab:facet-facetexample}).
 
-We call these terms inside a query facet ``facet terms'', which can be single words (e.g. \concept{international}, \concept{domestic} in Table~\ref{tab:facet-facetexample}) or phrases (e.g. \concept{first class}, \concept{business class} in Table~\ref{tab:facet-facetexample}).
+According to the definition, a query facet have two properties.  
+First, the facet terms inside a query facet should be coordinate terms.
+Coordinate terms are terms that share a semantic relationship by being subsumed by a more general hypernym. This property is easy to see according to our definition for a query facet. Second, a query facet should be relevant to the query. Otherwise, the query facet is useless for the search task.
 
-This definition of query facets corresponds to a one-level faceted taxonomy, in which only information objects that belong to a same parent node are shown as a query facet (Section~\ref{sec:bg-fws}). We leave generating query facets as two or more level taxonomies to future work.
+Again, note that this definition of query facets corresponds to a one-level faceted taxonomy, in which only information objects that belong to a same parent node are shown as a query facet (Section~\ref{sec:bg-fws}). We leave generating query facets as two or more level taxonomies to future work.
 
 When it is clear from context, we will simply use ``facet'' for ``query facet'', and ``term'' for ``facet term'' for convenience.
 
@@ -60,14 +63,13 @@ Based on the definitions above, query facet extraction is to extract query facet
 The idea for solving query facet extraction is to leverage coordinate terms found in the web search results to build high-quality query facets. These coordinate terms can be found by looking into the list structures in webpages (\eg, ordered lists, drop-down lists) or analyzing the linguistic list structures in the textual content (\eg, \concept{The airlines servicing this airport are \underline{AA}, \underline{Delta}, and \underline{JetBlue}}).
 Previous work in semantic class extraction~\cite{hearst1992automatic,pasca2004acquisition,kozareva2008semantic,shi2010corpus} has studied patterns for extracting these structures. 
 
-This idea is based on the following two assumptions:
+This idea is based on the following two assumptions, which are related to the two properties of query facets described above:
 \begin{enumerate}[label={(\arabic*)}]
- \item The list structures consist of coordinate terms, or terms that share peer relationships. According to webpage design conversions, webpage editors often list peering information objects in the HTML list structures. Similarly, the linguistic list structures are often used to list peer information objects in writing.
+ \item The list structures consist of coordinate terms (terms that are subsumed by the same hypernym). The coordinate terms share ppeer relationship. According to webpage design conversions, webpage editors often list peering information objects in the HTML list structures. Similarly, the linguistic list structures are often used to list peer information objects in writing.
  \item The list structures present relevant and important aspects of the query. Assuming the search results are relevant to the query, those list structures extracted from the search result should also be related to the query.  And, if they occur frequently, they may also be important to that query.
 \end{enumerate}
 
 Based on the idea, we develop the following general solution framework for query facet extraction, as also illustrated in Figure~\ref{fig:facet-framework}:
-\vspace{+5mm}
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=0.75\columnwidth]{drawing/facet-solution.eps}
@@ -95,7 +97,7 @@ We apply both of the two types of patterns on the search results to extract cand
 \label{tab:facet-patterns}
 \begin{tabular}{|c|l|} \hline
 Type& Pattern\\ \hline
-Lexical & \textit{item}, \{,\textit{item}$\}^*$, (and|or) \{other\} \textit{item} \\  \hline
+Lexical & \textit{item} \{,\textit{item}$\}^*$ \{,\} (and|or) \{other\} \textit{item}  \\  \hline
 \multirow{4}{*}{HTML}
 & <select><option>\textit{item}</option>...</select>\\\cline{2-2}
 & <ul><li>\textit{item}</li>...</ul>\\\cline{2-2}
@@ -109,8 +111,8 @@ We use the following lexical pattern:
 \begin{center}
 \textit{item} \{,\textit{item}$\}^*$ \{,\} (and|or) \{other\} \textit{item} 
 \end{center}
-\todo{James' comments}We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the sentence, \concept{The airlines servicing this airport are AA, Delta, and JetBlue
-}, we can extract the candidate list \{\concept{AA}, \concept{Delta}, \concept{JetBlue}\} using the lexical pattern. For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
+We apply the pattern on the textual content (ignoring HTML tags and formatting in the webpage) of the search results, and extract matched \textit{items} as a candidate list. To give an example, for the sentence, \concept{The airlines servicing this airport are AA, Delta, and JetBlue
+}, we can extract the candidate list \{\concept{AA}, \concept{Delta}, \concept{JetBlue}\} using the lexical pattern. For this lexical pattern, we also restrict those \textit{items} to be siblings in the parse tree of that sentence in order to improve extraction quality. This is because siblings are likely to be coordinate terms; they may be subsumed by or have same semantic relationships to their parent node in the parse tree. We use the PCFG parser~\cite{klein2003accurate} implemented in Stanford CoreNLP~\cite{manning2014stanford} for parsing documents.
 
 \subsection{HTML Patterns}
 We also extract candidate lists based on several HTML patterns that target list structures in HTML webpages, including drop-down lists, ordered lists, unordered lists and tables. Table~\ref{tab:facet-html} shows some HTML code examples for these list structures.
@@ -146,8 +148,7 @@ TABLE \\\hline
 </table>\\\hline
 \end{tabular}
 \end{table}
-
-We extract those HTML list structures based on the HTML patterns listed in Table~\ref{tab:facet-patterns}. Note that we do not match the HTML patterns with the HTML code exactly. Instead, we parse the HTML page into objects and extract textual content in the tags that we are interested in. We describe the extraction in details below:
+These HTML list structures are extracted based on the HTML patterns listed in Table~\ref{tab:facet-patterns}. Note that we do not match the HTML patterns with the HTML code exactly. Instead, we parse the HTML page into objects and extract textual content in the tags that we are interested in. We describe the extraction in details below:
 \begin{itemize}
  \item \textbf{SELECT}: For the SELECT tag, we extract textual content in the OPTION tags as a candidate lists. For the example in Table~\ref{tab:facet-html}, we will extract candidate list \{\concept{first class}, \concept{business class}, \concept{economy class}\}.
 \item \textbf{OL}: For the OL tag, we extract textual content in the LI tags as a candidate lists. For the example in Table~\ref{tab:facet-html}, we will extract candidate list \{\concept{checked baggage allowance}, \concept{carry on baggage allowance}, \concept{excess baggage allowance}\}.
@@ -289,7 +290,7 @@ The different data sources we used include a large web corpus (ClueWeb09), the l
   \end{itemize}
 \end{itemize}
 
-We extract the following types of frequency counts (on the different fields) as features. Note that these frequency-based features are normalized using $log(frequency+1)$ \todo{explain why}.
+We extract the following types of frequency counts (on the different fields) as features. Note that these frequency-based features are normalized using $log(frequency+1)$.
 \begin{itemize}
  \item Termfreq: item/term frequency, the frequency of the list item.
  \item PageFreq: page frequency, the number of search result webpages that contain the list item.
@@ -584,7 +585,8 @@ We choose to process these list items in decreasing order of $P(t)$, because it 
 %$F'$ is the set of facet terms the algorithm selected when processing each facet $F$.
 %In step 7 to 12, the algorithm chooses the best option for $t$ to maximize the log-likelihood $l(\mathcal{F})$. The list items we select from step 2 may contain ``bad'' facet terms. In step 14 to 24, the algorithm tries to delete those mistakes by locally optimize $l(\{F\})$ for each query facet $F$ formed. For each facet $F$, it consider whether each list item in the list should be delete or not. In step 15, $F'$ is the set of list items that we think should be kept after processing. $\Delta_2$ is the difference between $l(\{F'\})$'s changes of not including $t$ in $F'$ and including $F'$.
 
-The parameter $n$ is set to a large number (1000 in our experiments) to ensure not missing facet terms initially, and thus it is not used as a tuning parameter. Therefore, different from QFI, QFJ does not have tuning parameters for optimizing a given performance measure. Instead, QFJ is purely guided by the log-likelihood object in the inferencing procedure. In terms of time complexity QFJ is close to QFI. \textproc{Cluster} processes each of the $n$ facet terms. For each facet term, it considers $k$ potential query facets to add the facet term. For each query facet option, the computation for the resulting $l_p(\mathcal{F})$ takes $O(n)$ time. Thus, overall \textproc{Cluster} takes $O(kn^2)$ time. \textproc{RemoveOutliers} considers to remove each of the $n$ facet term as an outlier only once. In considering removing a facet term, computing $l\{F'\}$ takes $O(n)$ time. Thus, the overall time complexity for \textproc{RemoveOutliers} is $O(n^2)$. QFJ repeats \textproc{Cluster} and \textproc{RemoveOutliers} until convergence, thus QFJ takes $O(r \cdot k n^2)$ time, where $r$ is the number of iterations. In practice, we find $r$ and $k$ are small. Thus, the time complexity for QFJ is similar to QFI.
+The parameter $n$ is set to a large number (1000 in our experiments) to ensure not missing facet terms initially, and thus it is not used as a tuning parameter. Therefore, different from QFI, QFJ does not have tuning parameters for optimizing a given performance measure. Instead, QFJ is purely guided by the log-likelihood object in the inferencing procedure. In terms of time complexity QFJ is close to QFI. \textproc{Cluster} processes each of the $n$ facet terms. For each facet term, it considers $k$ potential query facets to add the facet term. For each query facet option, the computation for the resulting $l_p(\mathcal{F})$ takes $O(n)$ time. Thus, overall \textproc{Cluster} takes $O(kn^2)$ time. \textproc{RemoveOutliers} considers to remove each of the $n$ facet term as an outlier only once. In considering removing a facet term, computing $l\{F'\}$ takes $O(n)$ time. Thus, the overall time complexity for \textproc{RemoveOutliers} is $O(n^2)$. QFJ repeats \textproc{Cluster} and \textproc{RemoveOutliers} 
+until convergence, thus QFJ takes $O(r \cdot k n^2)$ time, where $r$ is the number of iterations. In practice, we find $r$ and $k$ are small. Thus, the time complexity for QFJ is similar to QFI.
 
 
 \subsection{Ranking Query Facets}
