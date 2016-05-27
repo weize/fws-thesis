@@ -349,7 +349,7 @@ Next, we compare \EUM  and \MLE training to test the effectiveness of the EUM ap
 
 From Figure~\ref{fig:ll-prf}, for \QFI, we find there are no statistically significant differences between \MLE and \EUM in most cases, even though generally \EUM obtains slightly better \PRF than \MLE. This can be explained by noting that \QFI under \MLE has already incorporated the \PRF learning target because it is tuned on \PRF. Essentially, we can view \QFI (under \MLE training) as a model that is trained on likelihood to find a small tuning space to enable optimization on given performance measures by hand tuning.
 
-Differently, for \QFI, we find \EUM can improve largely over \MLE under the precision-oriented scenarios. The differences between \EUM and \MLE are statistically significant for all $1/\beta>2$ and for all the three \EUM runs. This indicates 1) utility (performance measure) is a better optimization objective than likelihood and 2) our approximation of \PRF based on its expectation is effective. 
+Differently, for \QFJ, we find \EUM can improve largely over \MLE under the precision-oriented scenarios. The differences between \EUM and \MLE are statistically significant for all $1/\beta>2$ and for all the three \EUM runs. This indicates 1) utility (performance measure) is a better optimization objective than likelihood and 2) our approximation of \PRF based on its expectation is effective. 
 
 
 To study how \EUM training affects \QFJ in more details, as an example, we show \PRFab{1}{0.1} together with its \TP, \TR, \PF and facet size in Table~\ref{tab:prf}.
@@ -366,7 +366,7 @@ model & Training & \PRF & TP & TR & PF & Size\\ \hline
 \QFJ & \MLE & 0.4734 & 0.3986 & 0.4832 & 0.6961 & 97.0\\ \hline
 \QFJ & \EUMab{1}{1} & 0.5223 & 0.4884 & 0.3341 & 0.6702 & 54.8\\ \hline
 \QFJ & \EUMab{2}{1} & 0.5696 & 0.5711 & 0.2328 & 0.6705 & 33.9\\ \hline
-\QFJ & \EUMab{1}{1} & 0.5607 & 0.5710 & 0.2229 & 0.6620 & 33.0\\ \hline
+\QFJ & \EUMab{1}{0.5} & 0.5607 & 0.5710 & 0.2229 & 0.6620 & 33.0\\ \hline
 \end{tabular}
 \end{table}
 
